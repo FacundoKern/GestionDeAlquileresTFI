@@ -1,0 +1,40 @@
+@model GestionAlquileres.Web.ViewModels.Usuarios.UsuarioCrearViewModel
+@{
+    ViewData["Title"] = "Nuevo usuario";
+    ViewData.EstablecerMigas(new Miga("Usuarios", Url.Action("Index")!));
+}
+
+<partial name="_ResumenErrores" />
+
+<form asp-action="Crear" method="post" novalidate class="card">
+    <div class="card-body">
+        <fieldset class="mb-4">
+            <legend class="h5">Datos</legend>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="NombreCompleto" class="form-label"></label>
+                    <input asp-for="NombreCompleto" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+            </div>
+        </fieldset>
+
+        <partial name="_SelectorRol" model="Model.Rol" />
+
+        <partial name="_CamposClaveTemporal" model="Model" />
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Crear usuario</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

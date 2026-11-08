@@ -1,0 +1,27 @@
+@*
+    Menú de cuenta de la barra superior. En pantallas chicas solo queda "Salir": el usuario y
+    "Cambiar contraseña" se muestran al final del panel del menú lateral (ver _BarraLateral).
+*@
+@{
+    var nombre = User.FindFirst(ClaimsPropios.NombreCompleto)?.Value ?? User.Identity?.Name;
+    var rol = Roles.Todos.FirstOrDefault(User.IsInRole);
+}
+
+<nav class="menu-cuenta ms-auto" aria-label="Cuenta">
+    <span class="d-none d-lg-inline">
+        <i class="bi bi-person-circle" aria-hidden="true"></i>
+        @nombre
+        @if (rol is not null)
+        {
+            <span class="visually-hidden">, rol:</span>
+            <span class="badge text-bg-light ms-1">@rol</span>
+        }
+    </span>
+    <a class="d-none d-lg-inline" asp-area="" asp-controller="Cuenta" asp-action="CambiarClave">Cambiar contraseña</a>
+    <form asp-area="" asp-controller="Cuenta" asp-action="CerrarSesion" method="post">
+        <button type="submit" class="btn btn-outline-light btn-sm text-nowrap">
+            <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+            <span class="d-none d-sm-inline">Cerrar sesión</span><span class="d-sm-none">Salir</span>
+        </button>
+    </form>
+</nav>

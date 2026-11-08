@@ -1,0 +1,114 @@
+@model GestionAlquileres.Web.ViewModels.Inicio.TableroViewModel?
+@* Model null = el rol no puede ver información de contratos (Consulta): sin tablero. *@
+@{
+    ViewData["Title"] = "Inicio";
+    var nombre = User.FindFirst(ClaimsPropios.NombreCompleto)?.Value ?? User.Identity?.Name;
+}
+
+@if (Model is null)
+{
+    <p class="lead mb-4">Hola, @nombre.</p>
+    <div class="row g-4">
+        <div class="col-lg-7 col-xl-8">
+            <section class="card h-100" aria-labelledby="titulo-bienvenida">
+                <div class="card-body">
+                    <h2 id="titulo-bienvenida" class="h5 card-title">¿Qué podés consultar?</h2>
+                    <p>Usá el menú para ver los datos de:</p>
+                    <ul class="mb-0">
+                        <li><a asp-controller="Inquilinos" asp-action="Index">Inquilinos</a></li>
+                        <li><a asp-controller="Propietarios" asp-action="Index">Propietarios</a></li>
+                        <li><a asp-controller="Propiedades" asp-action="Index">Propiedades</a></li>
+                        <li><a asp-controller="Garantes" asp-action="Index">Garantes</a></li>
+                    </ul>
+                </div>
+            </section>
+        </div>
+        <div class="col-lg-5 col-xl-4">
+            @await Component.InvokeAsync("ResumenEmpresa")
+        </div>
+    </div>
+    return;
+}
+
+@{
+    var indicadores = new (string Titulo, int Valor, string Detalle, string Icono, NivelSemaforo NivelSiHay)[]
+    {
+        ("Contratos por vencer", Model.ContratosPorVencer, $"Terminan en los próximos {Model.DiasContratoPorVencer} días", "bi-calendar-event", NivelSemaforo.Atencion),
+        ("Ajustes de precio próximos", Model.AjustesProximos, $"Corresponden en los próximos {Model.DiasProximoAjuste} días", "bi-graph-up-arrow", NivelSemaforo.Atencion),
+        ("Pagos pendientes", Model.PagosPendientes, $"Cuotas vencidas o que vencen en {Model.DiasPagoProximo} días", "bi-cash-coin", NivelSemaforo.Atencion),
+        ("Moras activas", Model.MorasActivas, "Moras aplicadas sin cobrar", "bi-exclamation-octagon", NivelSemaforo.Critico),
+    };
+}
+
+<p class="lead mb-4">Hola, @nombre. Este es el resumen de hoy.</p>
+
+<section aria-labelledby="titulo-indicadores" class="mb-4">
+    <h2 id="titulo-indicadores" class="visually-hidden">Indicadores</h2>
+    <ul class="list-unstyled row g-3 mb-0">
+        @foreach (var (titulo, valor, detalle, icono, nivelSiHay) in indicadores)
+        {
+            var clase = valor == 0 ? "indicador-neutro" : nivelSiHay == NivelSemaforo.Critico ? "indicador-critico" : "indicador-atencion";
+            <li class="col-sm-6 col-xl-3">
+                <div class="card indicador h-100 @clase">
+                    <div class="card-body">
+                        <p class="indicador-titulo"><i class="bi @icono" aria-hidden="true"></i> @titulo</p>
+                        <p class="indicador-valor">@valor</p>
+                        <p class="indicador-detalle">@detalle</p>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+</section>
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <section class="card h-100" aria-labelledby="titulo-atencion">
+            <div class="card-body">
+                <h2 id="titulo-atencion" class="h5 card-title">Contratos que requieren atención</h2>
+                @if (Model.RequierenAtencion.Count == 0)
+                {
+                    <p class="mb-0"><i class="bi bi-check-circle" aria-hidden="true"></i> Todos los contratos vigentes están al día.</p>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <caption class="visually-hidden">Contratos vigentes vencidos, en mora, por vencer o con pago próximo</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Inquilino</th>
+                                    <th scope="col">Propiedad</th>
+                                    <th scope="col">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var contrato in Model.RequierenAtencion)
+                                {
+                                    <tr>
+                                        <th scope="row" class="fw-normal">
+                                            @if (contrato.InquilinoId is { } inquilinoId)
+                                            {
+                                                <a asp-controller="Inquilinos" asp-action="Detalle" asp-route-id="@inquilinoId">@contrato.Inquilino</a>
+                                            }
+                                            else
+                                            {
+                                                @contrato.Inquilino
+                                            }
+                                        </th>
+                                        <td><a asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@contrato.PropiedadId">@contrato.Propiedad</a></td>
+                                        <td><partial name="_Semaforo" model="contrato.Semaforo" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+
+    <div class="col-xl-4">
+        @await Component.InvokeAsync("ResumenEmpresa")
+    </div>
+</div>

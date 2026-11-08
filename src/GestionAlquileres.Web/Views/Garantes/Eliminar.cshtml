@@ -1,0 +1,10 @@
+@model GestionAlquileres.Web.ViewModels.Personas.EliminarPersonaViewModel
+@{
+    ViewData["Title"] = "Eliminar garante";
+    ViewData["Entidad"] = "garante";
+    ViewData.EstablecerMigas(
+        new Miga("Garantes", Url.Action("Index")!),
+        new Miga(Model.NombreCompleto, Url.Action("Detalle", new { id = Model.Id })!));
+}
+
+<partial name="_ConfirmarEliminarPersona" model="Model" />

@@ -1,0 +1,19 @@
+@*
+    Marca de la barra superior: logo de la inmobiliaria (versión para fondo oscuro) y nombre del sistema.
+    ViewData["MarcaSinLogo"] = true muestra solo el nombre (el inicio de sesión ya muestra el logo grande).
+*@
+@using GestionAlquileres.Web.Infrastructure.Configuracion
+@using Microsoft.Extensions.Options
+@inject IOptions<EmpresaOptions> OpcionesEmpresa
+@inject IWebHostEnvironment Entorno
+@{
+    var opciones = OpcionesEmpresa.Value;
+    var archivo = string.IsNullOrWhiteSpace(opciones.LogoSobreOscuro) ? opciones.Logo : opciones.LogoSobreOscuro;
+    var conLogo = ViewData["MarcaSinLogo"] as bool? != true
+        && !string.IsNullOrWhiteSpace(archivo) && Entorno.WebRootFileProvider.GetFileInfo(archivo).Exists;
+}
+@if (conLogo)
+{
+    <partial name="_LogoEmpresa" view-data='new ViewDataDictionary(ViewData) { ["LogoSobreOscuro"] = true, ["LogoClase"] = "logo-empresa" }' />
+}
+<span class="@(conLogo ? "nombre-sistema con-logo" : "nombre-sistema")">Gestión de Alquileres</span>

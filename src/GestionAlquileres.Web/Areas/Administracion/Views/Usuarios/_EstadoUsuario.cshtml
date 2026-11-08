@@ -1,0 +1,21 @@
+@model GestionAlquileres.Web.ViewModels.Usuarios.UsuarioEstadoViewModel
+@* Situación de la cuenta con texto e ícono (no solo color). *@
+
+<ul class="list-unstyled d-flex flex-wrap gap-1 mb-0">
+    @if (Model.Activo)
+    {
+        <li><span class="badge text-bg-success"><i class="bi bi-check-circle" aria-hidden="true"></i> Activo</span></li>
+    }
+    else
+    {
+        <li><span class="badge text-bg-secondary"><i class="bi bi-slash-circle" aria-hidden="true"></i> Inactivo</span></li>
+    }
+    @if (Model.Bloqueado)
+    {
+        <li><span class="badge text-bg-danger"><i class="bi bi-lock" aria-hidden="true"></i> Bloqueado hasta las @CulturaArgentina.AHoraArgentina(Model.BloqueadoHastaUtc!.Value).ToString("HH:mm")</span></li>
+    }
+    @if (Model.DebeCambiarClave)
+    {
+        <li><span class="badge text-bg-info"><i class="bi bi-key" aria-hidden="true"></i> Debe cambiar la contraseña</span></li>
+    }
+</ul>

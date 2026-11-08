@@ -1,0 +1,11 @@
+@model EstadoPropiedad
+@* Estado de una propiedad con ícono y texto (no solo color). *@
+@{
+    var semaforo = Model switch
+    {
+        EstadoPropiedad.Alquilada => new SemaforoViewModel(NivelSemaforo.AlDia, "Alquilada"),
+        EstadoPropiedad.Disponible => new SemaforoViewModel(NivelSemaforo.Atencion, "Disponible"),
+        _ => new SemaforoViewModel(NivelSemaforo.Neutro, "Inactiva"),
+    };
+}
+<partial name="_Semaforo" model="semaforo" />

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Gestión de Alquileres</title>
+    <partial name="_IconosSitio" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="pagina-publica">
+    <a class="enlace-salto" href="#contenido">Saltar al contenido principal</a>
+
+    <header class="barra-superior">
+        <span class="marca"><partial name="_Marca" /></span>
+    </header>
+
+    <main id="contenido" class="contenido-publico" tabindex="-1">
+        <partial name="_Mensajes" />
+        @RenderBody()
+    </main>
+
+    <footer class="pie-pagina">
+        @await Component.InvokeAsync("PiePagina")
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

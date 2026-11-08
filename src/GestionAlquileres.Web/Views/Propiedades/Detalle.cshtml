@@ -1,0 +1,104 @@
+@model GestionAlquileres.Web.ViewModels.Propiedades.PropiedadDetalleViewModel
+@{
+    ViewData["Title"] = Model.Direccion;
+    ViewData.EstablecerMigas(new Miga("Propiedades", Url.Action("Index")!));
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+}
+
+@section Acciones {
+    @* TODO (junto con los PDF de fase 3): botón "Descargar ficha en PDF" (ver Views/Propietarios/Detalle.cshtml). *@
+    @if (puedeGestionar)
+    {
+        <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+        <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash" aria-hidden="true"></i> Eliminar</a>
+    }
+}
+
+@if (Model.Galeria is { } carrusel)
+{
+    <partial name="_CarruselFotos" model="carrusel" />
+}
+
+<section class="card mb-4" aria-labelledby="titulo-datos">
+    <div class="card-body">
+        <h2 id="titulo-datos" class="h5 card-title">Datos de la propiedad</h2>
+        <dl class="ficha row mb-0">
+            <dt class="col-sm-4 col-lg-3">Estado</dt>
+            <dd class="col-sm-8 col-lg-9"><partial name="_EstadoPropiedad" model="Model.Estado" /></dd>
+
+            <dt class="col-sm-4 col-lg-3">Tipo</dt>
+            <dd class="col-sm-8 col-lg-9">@Model.Tipo.Nombre()</dd>
+
+            <dt class="col-sm-4 col-lg-3">Dirección</dt>
+            <dd class="col-sm-8 col-lg-9">
+                @Model.Calle @Model.Numero
+                @if (!string.IsNullOrEmpty(Model.Piso)) { <text>, piso @Model.Piso</text> }
+                @if (!string.IsNullOrEmpty(Model.Departamento)) { <text>, depto. @Model.Departamento</text> }
+            </dd>
+
+            <dt class="col-sm-4 col-lg-3">Localidad</dt>
+            <dd class="col-sm-8 col-lg-9">@Model.Localidad, @Model.Provincia @(Model.CodigoPostal is null ? null : $"({Model.CodigoPostal})")</dd>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Observaciones))
+            {
+                <dt class="col-sm-4 col-lg-3">Observaciones</dt>
+                <dd class="col-sm-8 col-lg-9 texto-multilinea">@Model.Observaciones</dd>
+            }
+        </dl>
+        <p class="small text-body-secondary mt-3 mb-0">
+            Cargada por @Model.CreadoPor el @Formato.FechaHora(Model.CreadoEnUtc).
+            @if (Model.ModificadoEnUtc is { } modificado)
+            {
+                <text>Última modificación: @Model.ModificadoPor, el @Formato.FechaHora(modificado).</text>
+            }
+        </p>
+    </div>
+</section>
+
+<section class="card mb-4" aria-labelledby="titulo-propietarios">
+    <div class="card-body">
+        <h2 id="titulo-propietarios" class="h5 card-title">Propietarios</h2>
+        @if (Model.Propietarios.Count == 0)
+        {
+            <p class="mb-0">No tiene propietarios cargados.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <caption class="visually-hidden">Propietarios y su participación</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Propietario</th>
+                            <th scope="col" class="text-end">Participación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var propietario in Model.Propietarios)
+                        {
+                            <tr>
+                                <th scope="row" class="fw-normal"><a asp-controller="Propietarios" asp-action="Detalle" asp-route-id="@propietario.Id">@propietario.Nombre</a></th>
+                                <td class="text-end">@Formato.Porcentaje(propietario.Porcentaje)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+@if (Model.Galeria is { } galeria)
+{
+    <partial name="_GaleriaFotos" model="galeria" />
+}
+
+@if (Model.Contratos is { } contratos)
+{
+    ViewData["MostrarPropiedad"] = false;
+    <partial name="_TablaContratos" model="contratos" view-data="ViewData" />
+}
+else
+{
+    <partial name="_ContratosNoDisponibles" />
+}

@@ -1,0 +1,5 @@
+@{
+    // Las vistas compartidas (p. ej. EnConstruccion) usadas desde el área Administración toman su layout,
+    // que agrega la ruta de navegación y el botón para volver.
+    Layout = ViewContext.RouteData.Values["area"] is "Administracion" ? "_LayoutAdministracion" : "_Layout";
+}

@@ -1,0 +1,25 @@
+@model GestionAlquileres.Web.ViewModels.Garantes.GaranteFormViewModel
+@{
+    ViewData["Title"] = "Editar garante";
+    var nombre = GestionAlquileres.Web.Models.Base.Persona.FormatearNombre(Model.TipoPersona, Model.Nombre, Model.Apellido);
+    ViewData.EstablecerMigas(
+        new Miga("Garantes", Url.Action("Index")!),
+        new Miga(nombre, Url.Action("Detalle", new { id = Model.Id })!));
+}
+
+<partial name="_ResumenErrores" />
+
+<form asp-action="Editar" asp-route-id="@Model.Id" method="post" novalidate class="card">
+    <input type="hidden" asp-for="RowVersion" />
+    <div class="card-body">
+        <partial name="_CamposPersona" model="Model" />
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Guardar cambios</button>
+            <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

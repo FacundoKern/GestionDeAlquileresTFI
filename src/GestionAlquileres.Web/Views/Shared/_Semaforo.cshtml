@@ -1,0 +1,5 @@
+@model SemaforoViewModel
+<span class="semaforo @Model.ClaseCss"><span class="semaforo-icono" aria-hidden="true">@Model.Icono</span> @Model.Texto</span>@if (!string.IsNullOrEmpty(Model.Detalle))
+{
+    <span class="d-block small text-muted">@Model.Detalle</span>
+}

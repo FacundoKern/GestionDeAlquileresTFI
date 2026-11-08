@@ -1,0 +1,167 @@
+@model GestionAlquileres.Web.ViewModels.Auditoria.AuditoriaIndexViewModel
+@{
+    ViewData["Title"] = "Auditoría";
+    var filtro = Model.Filtro;
+    var hayFiltros = filtro.Desde is not null || filtro.Hasta is not null || !string.IsNullOrWhiteSpace(filtro.Usuario)
+        || filtro.Accion is not null || !string.IsNullOrWhiteSpace(filtro.Entidad) || !string.IsNullOrWhiteSpace(filtro.EntidadId);
+}
+
+<p>
+    Registro de cambios de datos, aperturas de fichas con datos personales, inicios de sesión y gestión de usuarios.
+    No se puede modificar ni borrar. Las horas están en hora argentina.
+</p>
+
+<section class="card mb-4" aria-labelledby="titulo-busqueda">
+    <div class="card-body">
+        <h2 id="titulo-busqueda" class="h6 card-title">Filtrar</h2>
+        <form asp-action="Index" method="get" role="search" class="row g-3 align-items-end">
+            <div class="col-6 col-md-3 col-xl-2">
+                <label for="Desde" class="form-label">Desde</label>
+                <input id="Desde" name="Desde" type="date" value="@filtro.Desde?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label for="Hasta" class="form-label">Hasta</label>
+                <input id="Hasta" name="Hasta" type="date" value="@filtro.Hasta?.ToString("yyyy-MM-dd")" class="form-control" />
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <label for="Usuario" class="form-label">Usuario (email)</label>
+                <input id="Usuario" name="Usuario" type="search" value="@filtro.Usuario" class="form-control" />
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <label for="Accion" class="form-label">Acción</label>
+                <select id="Accion" name="Accion" class="form-select">
+                    <option value="">Todas</option>
+                    @foreach (var accion in Enum.GetValues<AccionAuditoria>())
+                    {
+                        <option value="@accion" selected="@(filtro.Accion == accion)">@accion.Nombre()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 col-xl-2">
+                <label for="Entidad" class="form-label">Tipo de registro</label>
+                <select id="Entidad" name="Entidad" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var entidad in Model.Entidades)
+                    {
+                        <option value="@entidad.Valor" selected="@(filtro.Entidad == entidad.Valor)">@entidad.Nombre</option>
+                    }
+                </select>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(filtro.EntidadId))
+            {
+                @* Llega desde "ver historial" de un registro: se conserva y se puede quitar con Limpiar. *@
+                <input type="hidden" name="EntidadId" value="@filtro.EntidadId" />
+            }
+            <div class="col-12 d-flex flex-wrap gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrar</button>
+                @if (hayFiltros)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="card" aria-labelledby="titulo-resultados">
+    <div class="card-body">
+        <h2 id="titulo-resultados" class="h6 card-title">
+            @if (!string.IsNullOrWhiteSpace(filtro.EntidadId))
+            {
+                @:Historial de un registro (@(Model.Resultados.Items.FirstOrDefault()?.Registro ?? filtro.EntidadId))
+            }
+            else
+            {
+                @(hayFiltros ? "Resultados" : "Últimos movimientos")
+            }
+        </h2>
+
+        @if (Model.Resultados.TotalRegistros == 0)
+        {
+            <p class="mb-0">No hay movimientos @(hayFiltros ? "con esos filtros" : "registrados").</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle tabla-auditoria">
+                    <caption class="visually-hidden">Movimientos de auditoría, los más recientes primero</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Fecha y hora</th>
+                            <th scope="col">Usuario</th>
+                            <th scope="col">Acción</th>
+                            <th scope="col">Registro</th>
+                            <th scope="col">Detalle</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.Resultados.Items)
+                        {
+                            <tr>
+                                <td class="text-nowrap">@Formato.FechaHora(r.FechaUtc)</td>
+                                <td class="text-break">@r.Usuario</td>
+                                <td>@r.Accion.Nombre()</td>
+                                <td>
+                                    @if (r.Enlace is { } enlace)
+                                    {
+                                        <a asp-area="@enlace.Area" asp-controller="@enlace.Controlador" asp-action="@enlace.Accion" asp-route-id="@enlace.Id">@r.Registro</a>
+                                    }
+                                    else
+                                    {
+                                        @r.Registro
+                                    }
+                                    @if (r.EntidadId is not null && string.IsNullOrWhiteSpace(filtro.EntidadId))
+                                    {
+                                        <div>
+                                            <a asp-action="Index" asp-route-Entidad="@r.Entidad" asp-route-EntidadId="@r.EntidadId" class="small">
+                                                Ver historial<span class="visually-hidden"> de @r.Registro</span>
+                                            </a>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(r.Detalle))
+                                    {
+                                        <div class="text-break">@r.Detalle</div>
+                                    }
+                                    @if (r.Cambios.Count > 0)
+                                    {
+                                        <details>
+                                            <summary>Ver datos (@r.Cambios.Count @(r.Cambios.Count == 1 ? "campo" : "campos"))</summary>
+                                            <table class="table table-sm mt-2 mb-0">
+                                                <caption class="visually-hidden">Valores del movimiento</caption>
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Campo</th>
+                                                        <th scope="col">Antes</th>
+                                                        <th scope="col">Después</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var c in r.Cambios)
+                                                    {
+                                                        <tr>
+                                                            <th scope="row" class="fw-normal">@c.Campo</th>
+                                                            <td class="text-break">@(c.Antes ?? "—")</td>
+                                                            <td class="text-break">@(c.Despues ?? "—")</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </details>
+                                    }
+                                    @if (r.DireccionIp is not null)
+                                    {
+                                        <div class="small text-body-secondary">IP @r.DireccionIp</div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="_Paginacion" model="@(new PaginacionViewModel(Model.Resultados.Pagina, Model.Resultados.TotalPaginas, Model.Resultados.TotalRegistros, new Dictionary<string, string?> { ["Desde"] = filtro.Desde?.ToString("yyyy-MM-dd"), ["Hasta"] = filtro.Hasta?.ToString("yyyy-MM-dd"), ["Usuario"] = filtro.Usuario, ["Accion"] = filtro.Accion?.ToString(), ["Entidad"] = filtro.Entidad, ["EntidadId"] = filtro.EntidadId }))" />
+        }
+    </div>
+</section>

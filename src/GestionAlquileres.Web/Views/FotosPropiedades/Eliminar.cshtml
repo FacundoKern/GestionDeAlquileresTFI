@@ -1,0 +1,22 @@
+@model GestionAlquileres.Web.ViewModels.Propiedades.EliminarFotoViewModel
+@{
+    ViewData["Title"] = "Eliminar foto";
+    ViewData.EstablecerMigas(
+        new Miga("Propiedades", Url.Action("Index", "Propiedades")!),
+        new Miga(Model.Direccion, Url.Action("Detalle", "Propiedades", new { id = Model.PropiedadId }, null, null, "fotos")!));
+}
+
+<section class="card" aria-labelledby="titulo-confirmar">
+    <div class="card-body">
+        <h2 id="titulo-confirmar" class="h5 card-title">¿Eliminar esta foto?</h2>
+        <img src="@Url.Action("Ver", new { id = Model.Id, miniatura = true })" alt="@(Model.Descripcion ?? "Foto a eliminar")"
+             class="img-fluid rounded mb-3 foto-confirmar" />
+        <p>Deja de mostrarse en la ficha de la propiedad. El registro de quién la eliminó queda en la auditoría.</p>
+
+        <form asp-action="Eliminar" asp-route-id="@Model.Id" method="post" class="d-flex flex-wrap gap-2">
+            <input type="hidden" name="rowVersion" value="@Model.RowVersion" />
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash" aria-hidden="true"></i> Sí, eliminar la foto</button>
+            <a asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@Model.PropiedadId" asp-fragment="fotos" class="btn btn-outline-secondary">Cancelar</a>
+        </form>
+    </div>
+</section>

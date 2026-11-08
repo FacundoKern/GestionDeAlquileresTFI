@@ -1,0 +1,18 @@
+@model EnConstruccionViewModel
+@{
+    ViewData["Title"] = Model.Titulo;
+}
+
+<p class="lead">@Model.Descripcion</p>
+
+<div class="alert alert-info" role="status">
+    <strong>Sección en construcción.</strong> Se implementa en la @Model.Fase.
+</div>
+
+<h2 class="h5">Qué va a incluir</h2>
+<ul>
+    @foreach (var pendiente in Model.Pendientes)
+    {
+        <li>@pendiente</li>
+    }
+</ul>

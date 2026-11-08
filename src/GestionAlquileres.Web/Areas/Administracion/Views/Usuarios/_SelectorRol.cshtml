@@ -1,0 +1,27 @@
+@model string
+@*
+    Rol como opciones con su explicación (más claro que un desplegable para decidir permisos).
+    ViewData["Deshabilitado"] = true lo muestra sin poder cambiarlo (el administrador editando su propia cuenta).
+*@
+@{
+    var deshabilitado = ViewData["Deshabilitado"] as bool? ?? false;
+}
+
+<fieldset class="mb-4" aria-describedby="@(deshabilitado ? "ayuda-rol-propio" : null)">
+    <legend class="h5">Rol <span class="texto-obligatorio">(obligatorio)</span></legend>
+    @if (deshabilitado)
+    {
+        <p id="ayuda-rol-propio" class="form-text mt-0">No podés cambiar tu propio rol. Si hace falta, pedíselo a otro administrador.</p>
+        <input type="hidden" name="Rol" value="@Model" />
+    }
+    @foreach (var rol in Roles.Todos)
+    {
+        <div class="form-check mb-2">
+            <input class="form-check-input" type="radio" name="Rol" id="Rol_@rol" value="@rol"
+                   checked="@(Model == rol)" disabled="@deshabilitado" aria-describedby="ayuda-rol-@rol" />
+            <label class="form-check-label fw-semibold" for="Rol_@rol">@rol</label>
+            <div id="ayuda-rol-@rol" class="form-text mt-0">@Roles.Descripcion(rol)</div>
+        </div>
+    }
+    <span class="text-danger field-validation-valid" data-valmsg-for="Rol" data-valmsg-replace="true"></span>
+</fieldset>

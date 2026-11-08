@@ -1,0 +1,105 @@
+@model GestionAlquileres.Web.ViewModels.Propiedades.PropiedadFormViewModel
+@{
+    // Si la provincia guardada no está en la lista (dato antiguo), se agrega para no perderla.
+    var provincias = Provincias.Todas.Contains(Model.Provincia) || string.IsNullOrEmpty(Model.Provincia)
+        ? Provincias.Todas
+        : Provincias.Todas.Append(Model.Provincia).ToList();
+}
+
+<fieldset class="mb-4">
+    <legend class="h5">Ubicación</legend>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Calle" class="form-label"></label>
+            <input asp-for="Calle" class="form-control" />
+            <span asp-validation-for="Calle" class="text-danger"></span>
+        </div>
+        <div class="col-6 col-md-2">
+            <label asp-for="Numero" class="form-label"></label>
+            <input asp-for="Numero" class="form-control" />
+            <span asp-validation-for="Numero" class="text-danger"></span>
+        </div>
+        <div class="col-6 col-md-2">
+            <label asp-for="Piso" class="form-label"></label>
+            <input asp-for="Piso" class="form-control" />
+            <span asp-validation-for="Piso" class="text-danger"></span>
+        </div>
+        <div class="col-6 col-md-2">
+            <label asp-for="Departamento" class="form-label"></label>
+            <input asp-for="Departamento" class="form-control" />
+            <span asp-validation-for="Departamento" class="text-danger"></span>
+        </div>
+        <div class="col-md-5">
+            <label asp-for="Localidad" class="form-label"></label>
+            <input asp-for="Localidad" class="form-control" aria-describedby="ayuda-localidad" />
+            <div id="ayuda-localidad" class="form-text">En CABA podés poner el barrio (por ejemplo Palermo).</div>
+            <span asp-validation-for="Localidad" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Provincia" class="form-label"></label>
+            <select asp-for="Provincia" asp-items="@(new SelectList(provincias))" class="form-select"></select>
+            <span asp-validation-for="Provincia" class="text-danger"></span>
+        </div>
+        <div class="col-6 col-md-3">
+            <label asp-for="CodigoPostal" class="form-label"></label>
+            <input asp-for="CodigoPostal" class="form-control" />
+            <span asp-validation-for="CodigoPostal" class="text-danger"></span>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="mb-4">
+    <legend class="h5">Características</legend>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label asp-for="Tipo" class="form-label"></label>
+            <select asp-for="Tipo" asp-items="Html.GetEnumSelectList<TipoPropiedad>()" class="form-select"></select>
+            <span asp-validation-for="Tipo" class="text-danger"></span>
+        </div>
+        <div class="col-md-8 d-flex align-items-end">
+            <div class="form-check mb-2">
+                <input asp-for="Activa" class="form-check-input" aria-describedby="ayuda-activa" />
+                <label asp-for="Activa" class="form-check-label"></label>
+                <div id="ayuda-activa" class="form-text">Desmarcala si la propiedad ya no se administra o está en refacción.</div>
+                <span asp-validation-for="Activa" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-12">
+            <label asp-for="Observaciones" class="form-label"></label>
+            <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Observaciones" class="text-danger"></span>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="mb-4" aria-describedby="ayuda-propietarios">
+    <legend class="h5">Propietarios</legend>
+    <p id="ayuda-propietarios" class="form-text mt-0">
+        Elegí uno o más propietarios y su participación. Las participaciones tienen que sumar 100 %.
+        Usá coma para los decimales (por ejemplo 33,33). Las filas vacías se ignoran.
+    </p>
+    <span asp-validation-for="Propietarios" class="text-danger d-block mb-2"></span>
+
+    @for (var i = 0; i < Model.Propietarios.Count; i++)
+    {
+        <div class="row g-2 align-items-start mb-2">
+            <div class="col-md-8">
+                <label asp-for="Propietarios[i].PropietarioId" class="form-label">Propietario @(i + 1)</label>
+                <select asp-for="Propietarios[i].PropietarioId" asp-items="Model.OpcionesPropietarios" class="form-select">
+                    <option value="">— Sin propietario —</option>
+                </select>
+                <span asp-validation-for="Propietarios[i].PropietarioId" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Propietarios[i].Porcentaje" class="form-label">Participación<span class="visually-hidden"> del propietario @(i + 1)</span> (%)</label>
+                <input asp-for="Propietarios[i].Porcentaje" class="form-control" inputmode="decimal" />
+                <span asp-validation-for="Propietarios[i].Porcentaje" class="text-danger"></span>
+            </div>
+        </div>
+    }
+    <p class="small text-body-secondary mb-0">
+        ¿El propietario todavía no está cargado?
+        <a asp-controller="Propietarios" asp-action="Crear" target="_blank" rel="noopener">Crealo en una pestaña nueva<span class="visually-hidden"> (se abre en una pestaña nueva)</span></a>
+        y después volvé a abrir este formulario.
+    </p>
+</fieldset>

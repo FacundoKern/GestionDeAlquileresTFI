@@ -1,0 +1,28 @@
+@model GestionAlquileres.Web.ViewModels.Usuarios.ResetearClaveViewModel
+@{
+    ViewData["Title"] = "Resetear contraseña";
+    ViewData.EstablecerMigas(
+        new Miga("Usuarios", Url.Action("Index")!),
+        new Miga(Model.NombreCompleto, Url.Action("Editar", new { id = Model.Id })!));
+}
+
+<p>
+    Vas a asignarle una contraseña temporal a <strong>@Model.NombreCompleto</strong>. Si tenía una sesión abierta,
+    se va a cerrar, y si estaba bloqueado por intentos fallidos, se desbloquea.
+</p>
+
+<partial name="_ResumenErrores" />
+
+<form asp-action="ResetearClave" asp-route-id="@Model.Id" method="post" novalidate class="card">
+    <div class="card-body">
+        <partial name="_CamposClaveTemporal" model="Model" />
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-key" aria-hidden="true"></i> Resetear contraseña</button>
+            <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,102 @@
+@model GestionAlquileres.Web.ViewModels.Propiedades.GaleriaFotosViewModel
+@*
+    Administración de las fotos (solo Administrador y Operador): subir, describir, elegir la principal y eliminar.
+    Las fotos se muestran arriba de la ficha, en el carrusel (_CarruselFotos). Funciona sin JavaScript: las
+    opciones de cada foto están en un <details>.
+*@
+@{
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+    var lugares = Model.MaximoPorPropiedad - Model.Fotos.Count;
+}
+@if (!puedeGestionar)
+{
+    return;
+}
+
+<section id="fotos" class="card mb-4" aria-labelledby="titulo-fotos">
+    <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-baseline gap-2 mb-3">
+            <h2 id="titulo-fotos" class="h5 card-title mb-0">Administrar fotos</h2>
+            <span class="small text-body-secondary">@Model.Fotos.Count de @Model.MaximoPorPropiedad</span>
+        </div>
+
+        @if (lugares > 0)
+        {
+            <form asp-controller="FotosPropiedades" asp-action="Subir" asp-route-id="@Model.PropiedadId" method="post"
+                  enctype="multipart/form-data" class="subir-fotos mb-4">
+                <label for="archivos" class="form-label">Agregar fotos</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <input id="archivos" name="archivos" type="file" class="form-control w-auto flex-grow-1" multiple
+                           accept="image/jpeg,image/png,image/webp" required aria-describedby="ayuda-fotos" />
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-upload" aria-hidden="true"></i> Subir fotos</button>
+                </div>
+                <div id="ayuda-fotos" class="form-text">
+                    JPG, PNG o WebP, hasta @Model.TamanioMaximoMB MB cada una y @Model.MaximoPorEnvio por vez.
+                    Se les quitan los datos ocultos (como la ubicación GPS del celular) y se achican para que carguen rápido.
+                </div>
+            </form>
+        }
+
+        @if (Model.Fotos.Count == 0)
+        {
+            <p class="mb-0">Todavía no hay fotos de esta propiedad.</p>
+        }
+        else
+        {
+            <ul class="galeria-fotos list-unstyled row g-3 mb-0">
+                @for (var i = 0; i < Model.Fotos.Count; i++)
+                {
+                    var foto = Model.Fotos[i];
+                    var alt = string.IsNullOrWhiteSpace(foto.Descripcion) ? $"Foto {i + 1} de {Model.Direccion}" : foto.Descripcion;
+                    <li class="col-6 col-md-4 col-xl-3">
+                        <figure class="foto-propiedad mb-0">
+                            <a asp-controller="FotosPropiedades" asp-action="Ver" asp-route-id="@foto.Id" target="_blank" rel="noopener">
+                                <img src="@Url.Action("Ver", "FotosPropiedades", new { id = foto.Id, miniatura = true })" alt="@alt"
+                                     loading="lazy" class="img-fluid rounded" />
+                                <span class="visually-hidden"> (ver en tamaño completo, se abre en una pestaña nueva)</span>
+                            </a>
+                            <figcaption class="small mt-1">
+                                @if (foto.EsPrincipal)
+                                {
+                                    <span class="badge text-bg-primary"><i class="bi bi-star-fill" aria-hidden="true"></i> Principal</span>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(foto.Descripcion))
+                                {
+                                    <span>@foto.Descripcion</span>
+                                }
+                            </figcaption>
+
+                            @if (puedeGestionar)
+                            {
+                                <details class="opciones-foto mt-1">
+                                    <summary>Opciones<span class="visually-hidden"> de la foto @(i + 1)</span></summary>
+                                    <form asp-controller="FotosPropiedades" asp-action="Descripcion" asp-route-id="@foto.Id" method="post" class="mt-2">
+                                        <input type="hidden" name="rowVersion" value="@foto.RowVersion" />
+                                        <label for="descripcion-@foto.Id" class="form-label small mb-1">Descripción</label>
+                                        <input id="descripcion-@foto.Id" name="descripcion" value="@foto.Descripcion" maxlength="200"
+                                               class="form-control form-control-sm" aria-describedby="ayuda-descripcion-@foto.Id" />
+                                        <div id="ayuda-descripcion-@foto.Id" class="form-text">Por ejemplo "Living con balcón". La leen los lectores de pantalla.</div>
+                                        <button type="submit" class="btn btn-outline-primary btn-sm mt-1">Guardar descripción</button>
+                                    </form>
+                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                        @if (!foto.EsPrincipal)
+                                        {
+                                            <form asp-controller="FotosPropiedades" asp-action="Principal" asp-route-id="@foto.Id" method="post">
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                                    <i class="bi bi-star" aria-hidden="true"></i> Hacer principal
+                                                </button>
+                                            </form>
+                                        }
+                                        <a asp-controller="FotosPropiedades" asp-action="Eliminar" asp-route-id="@foto.Id" class="btn btn-outline-danger btn-sm">
+                                            <i class="bi bi-trash" aria-hidden="true"></i> Eliminar
+                                        </a>
+                                    </div>
+                                </details>
+                            }
+                        </figure>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</section>

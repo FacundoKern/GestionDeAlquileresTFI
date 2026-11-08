@@ -1,0 +1,70 @@
+@model GestionAlquileres.Web.ViewModels.Empresa.DatosEmpresaViewModel?
+@{
+    var esAdministrador = (await AuthorizationService.AuthorizeAsync(User, Politicas.Administracion)).Succeeded;
+}
+
+<section class="card h-100" aria-labelledby="titulo-empresa">
+    <div class="card-body">
+        <h2 id="titulo-empresa" class="h5 card-title">Sobre la inmobiliaria</h2>
+
+        @if (Model is null)
+        {
+            <p class="mb-0">Todavía no se cargaron los datos de la inmobiliaria.</p>
+        }
+        else
+        {
+            <div class="mb-3">
+                <partial name="_LogoEmpresa" view-data='new ViewDataDictionary(ViewData) { ["LogoClase"] = "logo-resumen", ["LogoDecorativo"] = true }' />
+            </div>
+            <p class="fw-semibold mb-1">@Model.NombreComercial</p>
+            @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+            {
+                <p>@Model.Descripcion</p>
+            }
+
+            <dl class="datos-apilados mb-0">
+                @if (!string.IsNullOrWhiteSpace(Model.RazonSocial))
+                {
+                    <dt>Razón social</dt>
+                    <dd>@Model.RazonSocial</dd>
+                }
+                @if (Model.CuitFormateado is { } cuit)
+                {
+                    <dt>CUIT</dt>
+                    <dd>@cuit</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.MatriculaCorredor))
+                {
+                    <dt>Matrícula</dt>
+                    <dd>@Model.MatriculaCorredor</dd>
+                }
+                @if (Model.DireccionCompleta is { } direccion)
+                {
+                    <dt>Dirección</dt>
+                    <dd>@direccion</dd>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.HorarioAtencion))
+                {
+                    <dt>Horario</dt>
+                    <dd>@Model.HorarioAtencion</dd>
+                }
+                @if (Model.SitioWebEnlace is { } sitio)
+                {
+                    <dt>Sitio web</dt>
+                    <dd>
+                        <a href="@sitio" target="_blank" rel="noopener noreferrer">@Model.SitioWeb<span class="visually-hidden"> (se abre en una pestaña nueva)</span></a>
+                    </dd>
+                }
+            </dl>
+        }
+
+        @if (esAdministrador)
+        {
+            <p class="mt-3 mb-0">
+                <a asp-area="Administracion" asp-controller="DatosEmpresa" asp-action="Index">
+                    @(Model is null ? "Cargar los datos de la inmobiliaria" : "Editar los datos de la inmobiliaria")
+                </a>
+            </p>
+        }
+    </div>
+</section>

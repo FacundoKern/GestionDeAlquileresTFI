@@ -1,0 +1,9 @@
+@* Mensajes después de una redirección. role="status" (éxito) y role="alert" (error) los anuncian al lector de pantalla. *@
+@if (TempData[MensajesTempData.Exito] is string exito)
+{
+    <div class="alert alert-success" role="status">@exito</div>
+}
+@if (TempData[MensajesTempData.Error] is string error)
+{
+    <div class="alert alert-danger" role="alert">@error</div>
+}

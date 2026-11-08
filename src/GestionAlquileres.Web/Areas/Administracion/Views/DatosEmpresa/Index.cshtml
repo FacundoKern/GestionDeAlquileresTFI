@@ -1,0 +1,132 @@
+@model GestionAlquileres.Web.ViewModels.Empresa.DatosEmpresaFormViewModel
+@{
+    ViewData["Title"] = "Datos de la inmobiliaria";
+}
+
+<p>Se muestran en el pie de página, en el inicio y en el encabezado de los documentos (recibos, avisos).</p>
+
+<partial name="_ResumenErrores" />
+
+<form asp-action="Index" method="post" novalidate>
+    <input type="hidden" asp-for="RowVersion" />
+
+    <fieldset class="mb-4">
+        <legend class="h5">Identificación</legend>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="NombreComercial" class="form-label"></label>
+                <input asp-for="NombreComercial" class="form-control" autocomplete="organization" />
+                <span asp-validation-for="NombreComercial" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="RazonSocial" class="form-label"></label>
+                <input asp-for="RazonSocial" class="form-control" />
+                <span asp-validation-for="RazonSocial" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Cuit" class="form-label"></label>
+                <input asp-for="Cuit" class="form-control" inputmode="numeric" aria-describedby="ayuda-cuit" />
+                <div id="ayuda-cuit" class="form-text">11 dígitos, con o sin guiones. Ejemplo: 30-12345678-9.</div>
+                <span asp-validation-for="Cuit" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="MatriculaCorredor" class="form-label"></label>
+                <input asp-for="MatriculaCorredor" class="form-control" />
+                <span asp-validation-for="MatriculaCorredor" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Descripcion" class="form-label"></label>
+                <textarea asp-for="Descripcion" class="form-control" rows="3" aria-describedby="ayuda-descripcion"></textarea>
+                <div id="ayuda-descripcion" class="form-text">Se muestra en la página de inicio. Máximo 1000 caracteres.</div>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="mb-4">
+        <legend class="h5">Dirección</legend>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Direccion" class="form-label"></label>
+                <input asp-for="Direccion" class="form-control" autocomplete="street-address" />
+                <span asp-validation-for="Direccion" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Localidad" class="form-label"></label>
+                <input asp-for="Localidad" class="form-control" autocomplete="address-level2" />
+                <span asp-validation-for="Localidad" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Provincia" class="form-label"></label>
+                <input asp-for="Provincia" class="form-control" autocomplete="address-level1" />
+                <span asp-validation-for="Provincia" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="CodigoPostal" class="form-label"></label>
+                <input asp-for="CodigoPostal" class="form-control" autocomplete="postal-code" />
+                <span asp-validation-for="CodigoPostal" class="text-danger"></span>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="mb-4">
+        <legend class="h5">Contacto</legend>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Telefono" class="form-label"></label>
+                <input asp-for="Telefono" class="form-control" type="tel" autocomplete="tel" />
+                <span asp-validation-for="Telefono" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Whatsapp" class="form-label"></label>
+                <input asp-for="Whatsapp" class="form-control" type="tel" aria-describedby="ayuda-whatsapp" />
+                <div id="ayuda-whatsapp" class="form-text">Con código de área, sin 0 ni 15. Ejemplo: 11 5555-0000.</div>
+                <span asp-validation-for="Whatsapp" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control" autocomplete="email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SitioWeb" class="form-label"></label>
+                <input asp-for="SitioWeb" class="form-control" type="url" autocomplete="url" />
+                <span asp-validation-for="SitioWeb" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="HorarioAtencion" class="form-label"></label>
+                <input asp-for="HorarioAtencion" class="form-control" aria-describedby="ayuda-horario" />
+                <div id="ayuda-horario" class="form-text">Ejemplo: Lunes a viernes de 9 a 18 h.</div>
+                <span asp-validation-for="HorarioAtencion" class="text-danger"></span>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="mb-4">
+        <legend class="h5">Soporte técnico del sistema</legend>
+        <p class="form-text mt-0">A quién contactar si el sistema falla. Se muestra en el pie de página.</p>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label asp-for="SoporteNombre" class="form-label"></label>
+                <input asp-for="SoporteNombre" class="form-control" />
+                <span asp-validation-for="SoporteNombre" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="SoporteTelefono" class="form-label"></label>
+                <input asp-for="SoporteTelefono" class="form-control" type="tel" />
+                <span asp-validation-for="SoporteTelefono" class="text-danger"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="SoporteEmail" class="form-label"></label>
+                <input asp-for="SoporteEmail" class="form-control" />
+                <span asp-validation-for="SoporteEmail" class="text-danger"></span>
+            </div>
+        </div>
+    </fieldset>
+
+    <button type="submit" class="btn btn-primary">Guardar datos</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,12 @@
+@*
+    Resumen de errores de validación del servidor. Se enfoca al cargar (site.js) y role="alert" hace que
+    el lector de pantalla lo anuncie. Cada error de campo además está vinculado a su campo (aria-describedby).
+    Título personalizable con ViewData["TituloErrores"].
+*@
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger" role="alert" tabindex="-1" data-enfocar-al-cargar>
+        <h2 class="h6 mb-2">@(ViewData["TituloErrores"] as string ?? "No se pudo guardar. Revisá lo siguiente:")</h2>
+        <div asp-validation-summary="All" class="mb-0"></div>
+    </div>
+}

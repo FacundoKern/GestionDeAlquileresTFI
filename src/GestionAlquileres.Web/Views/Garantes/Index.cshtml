@@ -1,0 +1,111 @@
+@model GestionAlquileres.Web.ViewModels.Garantes.GarantesIndexViewModel
+@{
+    ViewData["Title"] = "Garantes";
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+    var filtro = Model.Filtro;
+    var hayFiltros = !string.IsNullOrWhiteSpace(filtro.Texto) || (Model.MostrarContratos && filtro.GarantizaContratoVigente is not null);
+}
+
+@section Acciones {
+    @if (puedeGestionar)
+    {
+        <a asp-action="Crear" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo garante</a>
+    }
+}
+
+<section class="card mb-4" aria-labelledby="titulo-busqueda">
+    <div class="card-body">
+        <h2 id="titulo-busqueda" class="h6 card-title">Buscar</h2>
+        <form asp-action="Index" method="get" role="search" class="row g-3 align-items-end">
+            <div class="col-md-6 col-xl-5">
+                <label for="Texto" class="form-label">Nombre o documento</label>
+                <input id="Texto" name="Texto" value="@filtro.Texto" class="form-control" type="search" />
+            </div>
+            @if (Model.MostrarContratos)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <label for="GarantizaContratoVigente" class="form-label">Contratos</label>
+                    <select id="GarantizaContratoVigente" name="GarantizaContratoVigente" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="true" selected="@(filtro.GarantizaContratoVigente == true)">Garantiza un contrato vigente</option>
+                        <option value="false" selected="@(filtro.GarantizaContratoVigente == false)">No garantiza contratos vigentes</option>
+                    </select>
+                </div>
+            }
+            <div class="col-md-6 col-xl-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+                @if (hayFiltros)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="card" aria-labelledby="titulo-resultados">
+    <div class="card-body">
+        <h2 id="titulo-resultados" class="h6 card-title">@(hayFiltros ? "Resultados de la búsqueda" : "Todos los garantes")</h2>
+
+        @if (Model.Resultados.TotalRegistros == 0)
+        {
+            <p class="mb-0">@(hayFiltros ? "No se encontraron garantes con esos filtros." : "Todavía no hay garantes cargados.")</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <caption class="visually-hidden">Listado de garantes</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Documento</th>
+                            <th scope="col">Teléfono</th>
+                            <th scope="col">Email</th>
+                            @if (Model.MostrarContratos)
+                            {
+                                <th scope="col">Contratos que garantiza</th>
+                            }
+                            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var g in Model.Resultados.Items)
+                        {
+                            <tr>
+                                <th scope="row" class="fw-normal"><a asp-action="Detalle" asp-route-id="@g.Id">@g.Nombre</a></th>
+                                <td class="text-nowrap">@g.Documento</td>
+                                <td class="text-nowrap">@(g.Telefono ?? "—")</td>
+                                <td>@(g.Email ?? "—")</td>
+                                @if (Model.MostrarContratos)
+                                {
+                                    <td>
+                                        @if (g.ContratosTotales is 0 or null)
+                                        {
+                                            <span class="text-body-secondary">Ninguno</span>
+                                        }
+                                        else
+                                        {
+                                            @(g.ContratosVigentes == 1 ? "1 vigente" : $"{g.ContratosVigentes} vigentes")
+                                            <span class="text-body-secondary">(@g.ContratosTotales en total)</span>
+                                        }
+                                    </td>
+                                }
+                                <td class="text-end text-nowrap">
+                                    @if (puedeGestionar)
+                                    {
+                                        <a asp-action="Editar" asp-route-id="@g.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i> Editar<span class="visually-hidden"> a @g.Nombre</span>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="_Paginacion" model="@(new PaginacionViewModel(Model.Resultados.Pagina, Model.Resultados.TotalPaginas, Model.Resultados.TotalRegistros, new Dictionary<string, string?> { ["Texto"] = filtro.Texto, ["GarantizaContratoVigente"] = filtro.GarantizaContratoVigente?.ToString().ToLowerInvariant() }))" />
+        }
+    </div>
+</section>

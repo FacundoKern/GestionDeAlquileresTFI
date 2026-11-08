@@ -1,0 +1,50 @@
+@model IReadOnlyList<GestionAlquileres.Web.ViewModels.Contratos.ContratoResumenViewModel>
+@* Tabla de contratos para las fichas. ViewData["MostrarPropiedad"] = false oculta la columna Propiedad. *@
+@{
+    var mostrarPropiedad = ViewData["MostrarPropiedad"] as bool? ?? true;
+}
+
+<section class="card mb-4" aria-labelledby="titulo-contratos">
+    <div class="card-body">
+        <h2 id="titulo-contratos" class="h5 card-title">Contratos</h2>
+        @if (Model.Count == 0)
+        {
+            <p class="mb-0">No tiene contratos registrados.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <caption class="visually-hidden">Contratos, vigentes primero</caption>
+                    <thead>
+                        <tr>
+                            @if (mostrarPropiedad)
+                            {
+                                <th scope="col">Propiedad</th>
+                            }
+                            <th scope="col">Inquilinos</th>
+                            <th scope="col">Vigencia</th>
+                            <th scope="col" class="text-end">Monto actual</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var contrato in Model)
+                        {
+                            <tr>
+                                @if (mostrarPropiedad)
+                                {
+                                    <td><a asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@contrato.PropiedadId">@contrato.Propiedad</a></td>
+                                }
+                                <td>@contrato.Inquilinos</td>
+                                <td class="text-nowrap">@Formato.Fecha(contrato.FechaInicio) al @Formato.Fecha(contrato.FechaFin)</td>
+                                <td class="text-end text-nowrap">@contrato.MontoActual</td>
+                                <td><partial name="_Semaforo" model="contrato.Estado" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>

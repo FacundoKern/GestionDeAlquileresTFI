@@ -1,0 +1,42 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+
+[*.{json,csproj,props,targets,yml,yaml}]
+indent_size = 2
+
+[*.{cshtml,html,css,js}]
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.cs]
+# Organización de usings
+dotnet_sort_system_directives_first = true
+csharp_using_directive_placement = outside_namespace:warning
+
+# Namespaces con alcance de archivo
+csharp_style_namespace_declarations = file_scoped:warning
+
+# var cuando el tipo es evidente
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+
+# Llaves siempre
+csharp_prefer_braces = true:warning
+
+# Nombres: campos privados con _camelCase
+dotnet_naming_rule.campos_privados.symbols = campos_privados
+dotnet_naming_rule.campos_privados.style = guion_bajo_camel
+dotnet_naming_rule.campos_privados.severity = warning
+dotnet_naming_symbols.campos_privados.applicable_kinds = field
+dotnet_naming_symbols.campos_privados.applicable_accessibilities = private
+dotnet_naming_style.guion_bajo_camel.required_prefix = _
+dotnet_naming_style.guion_bajo_camel.capitalization = camel_case

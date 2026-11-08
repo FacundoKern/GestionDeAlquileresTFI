@@ -1,0 +1,64 @@
+@model PaginacionViewModel
+@{
+    Dictionary<string, string?> RutaPara(int pagina)
+    {
+        var ruta = Model.Filtros.Where(f => !string.IsNullOrEmpty(f.Value)).ToDictionary(f => f.Key, f => f.Value);
+        ruta["pagina"] = pagina.ToString();
+        return ruta;
+    }
+
+    // Con muchas páginas (p. ej. la auditoría) se muestran la primera, la última y dos a cada lado de la actual.
+    const int Vecinas = 2;
+    var paginas = Enumerable.Range(1, Model.TotalPaginas)
+        .Where(i => i == 1 || i == Model.TotalPaginas || Math.Abs(i - Model.Pagina) <= Vecinas)
+        .ToList();
+}
+
+<p class="text-muted small mb-2">
+    @Model.TotalRegistros @(Model.TotalRegistros == 1 ? "resultado" : "resultados") — página @Model.Pagina de @Model.TotalPaginas
+</p>
+
+@if (Model.TotalPaginas > 1)
+{
+    <nav aria-label="Paginación">
+        <ul class="pagination flex-wrap">
+            <li class="page-item @(Model.Pagina <= 1 ? "disabled" : null)">
+                @if (Model.Pagina > 1)
+                {
+                    <a class="page-link" asp-all-route-data="RutaPara(Model.Pagina - 1)">Anterior</a>
+                }
+                else
+                {
+                    <span class="page-link">Anterior</span>
+                }
+            </li>
+            @for (var n = 0; n < paginas.Count; n++)
+            {
+                var i = paginas[n];
+                if (n > 0 && i - paginas[n - 1] > 1)
+                {
+                    <li class="page-item disabled" aria-hidden="true"><span class="page-link">…</span></li>
+                }
+
+                if (i == Model.Pagina)
+                {
+                    <li class="page-item active"><span class="page-link" aria-current="page">@i</span></li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" asp-all-route-data="RutaPara(i)" aria-label="Página @i">@i</a></li>
+                }
+            }
+            <li class="page-item @(Model.Pagina >= Model.TotalPaginas ? "disabled" : null)">
+                @if (Model.Pagina < Model.TotalPaginas)
+                {
+                    <a class="page-link" asp-all-route-data="RutaPara(Model.Pagina + 1)">Siguiente</a>
+                }
+                else
+                {
+                    <span class="page-link">Siguiente</span>
+                }
+            </li>
+        </ul>
+    </nav>
+}

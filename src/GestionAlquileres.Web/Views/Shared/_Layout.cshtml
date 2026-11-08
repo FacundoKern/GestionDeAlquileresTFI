@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+@{
+    var autenticado = User.Identity?.IsAuthenticated == true;
+    var conMenu = autenticado && (await AuthorizationService.AuthorizeAsync(User, Politicas.Lectura)).Succeeded;
+    var esInicio = ViewContext.RouteData.Values["area"] is null or ""
+        && ViewContext.RouteData.Values["controller"] is "Inicio"
+        && ViewContext.RouteData.Values["action"] is "Index";
+    var migas = ViewData.Migas();
+}
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Gestión de Alquileres</title>
+    <partial name="_IconosSitio" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="enlace-salto" href="#contenido">Saltar al contenido principal</a>
+
+    <header class="barra-superior">
+        @if (conMenu)
+        {
+            <button class="btn btn-outline-light btn-sm d-lg-none text-nowrap" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#barra-lateral" aria-controls="barra-lateral">
+                <i class="bi bi-list" aria-hidden="true"></i> Menú
+            </button>
+        }
+        <a class="marca" asp-area="" asp-controller="Inicio" asp-action="Index"><partial name="_Marca" /></a>
+        @if (autenticado)
+        {
+            <partial name="_MenuCuenta" />
+        }
+    </header>
+
+    <div class="cuerpo-app">
+        @if (conMenu)
+        {
+            <partial name="_BarraLateral" />
+        }
+
+        <div class="columna-contenido">
+            <main id="contenido" class="contenido" tabindex="-1">
+                <div class="encabezado-pagina">
+                    @if (!esInicio)
+                    {
+                        <nav aria-label="Ruta de navegación">
+                            <ol class="breadcrumb mb-2">
+                                <li class="breadcrumb-item"><a asp-area="" asp-controller="Inicio" asp-action="Index">Inicio</a></li>
+                                @foreach (var miga in migas)
+                                {
+                                    <li class="breadcrumb-item"><a href="@miga.Url">@miga.Texto</a></li>
+                                }
+                                <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+                            </ol>
+                        </nav>
+                    }
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <h1 class="titulo-pagina">@ViewData["Title"]</h1>
+                        @if (IsSectionDefined("Acciones"))
+                        {
+                            @* RenderSectionAsync escribe en el lugar donde se llama: tiene que estar acá. *@
+                            <div class="acciones-pagina">@await RenderSectionAsync("Acciones")</div>
+                        }
+                    </div>
+                    @if (migas.Count > 0)
+                    {
+                        <p class="mt-2 mb-0">
+                            <a href="@migas[^1].Url" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a @migas[^1].Texto
+                            </a>
+                        </p>
+                    }
+                </div>
+
+                <partial name="_Mensajes" />
+                @RenderBody()
+            </main>
+
+            <footer class="pie-pagina">
+                @await Component.InvokeAsync("PiePagina")
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

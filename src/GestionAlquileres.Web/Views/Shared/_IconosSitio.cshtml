@@ -1,0 +1,17 @@
+@* Íconos de la pestaña del navegador y de acceso directo en celulares (si los archivos existen). *@
+@using GestionAlquileres.Web.Infrastructure.Configuracion
+@using Microsoft.Extensions.Options
+@inject IOptions<EmpresaOptions> OpcionesEmpresa
+@inject IWebHostEnvironment Entorno
+@{
+    bool Existe(string? ruta) => !string.IsNullOrWhiteSpace(ruta) && Entorno.WebRootFileProvider.GetFileInfo(ruta).Exists;
+    var opciones = OpcionesEmpresa.Value;
+}
+@if (Existe(opciones.Icono))
+{
+    <link rel="icon" type="image/png" sizes="32x32" href="~/@opciones.Icono" asp-append-version="true" />
+}
+@if (Existe(opciones.IconoApple))
+{
+    <link rel="apple-touch-icon" sizes="180x180" href="~/@opciones.IconoApple" asp-append-version="true" />
+}

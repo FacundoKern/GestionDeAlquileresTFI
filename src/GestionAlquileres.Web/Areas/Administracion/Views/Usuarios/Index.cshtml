@@ -1,0 +1,51 @@
+@model IReadOnlyList<GestionAlquileres.Web.ViewModels.Usuarios.UsuarioFilaViewModel>
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+@section Acciones {
+    <a asp-action="Crear" class="btn btn-primary"><i class="bi bi-person-plus" aria-hidden="true"></i> Nuevo usuario</a>
+}
+
+<p>
+    Las personas que pueden ingresar al sistema. Los usuarios no se eliminan: si alguien deja de trabajar en la
+    inmobiliaria, desactivá su cuenta.
+</p>
+
+<section class="card" aria-labelledby="titulo-usuarios">
+    <div class="card-body">
+        <h2 id="titulo-usuarios" class="h6 card-title">Todos los usuarios</h2>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <caption class="visually-hidden">Usuarios del sistema, activos primero</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Nombre</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Rol</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Último ingreso</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        <tr>
+                            <th scope="row" class="fw-normal">
+                                <a asp-action="Editar" asp-route-id="@u.Id">@u.NombreCompleto</a>
+                                @if (u.EsUstedMismo)
+                                {
+                                    <span class="text-body-secondary">(vos)</span>
+                                }
+                            </th>
+                            <td>@u.Email</td>
+                            <td>@u.Rol</td>
+                            <td><partial name="_EstadoUsuario" model="u.Estado" /></td>
+                            <td class="text-nowrap">@(u.Estado.UltimoIngresoUtc is { } ingreso ? Formato.FechaHora(ingreso) : "Nunca")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

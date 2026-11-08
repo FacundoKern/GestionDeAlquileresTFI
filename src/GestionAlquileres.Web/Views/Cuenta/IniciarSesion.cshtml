@@ -1,0 +1,52 @@
+@model GestionAlquileres.Web.ViewModels.Cuenta.IniciarSesionViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+    Layout = "_LayoutPublico";
+    ViewData["TituloErrores"] = "No se pudo iniciar sesión:";
+    ViewData["MarcaSinLogo"] = true; // el logo se muestra grande en la tarjeta
+}
+
+<div class="tarjeta-login card">
+    <div class="card-body p-4">
+        <div class="text-center mb-4">
+            <partial name="_LogoEmpresa" view-data='new ViewDataDictionary(ViewData) { ["LogoClase"] = "logo-login" }' />
+        </div>
+        <h1 class="h3 mb-1">Iniciar sesión</h1>
+        <p class="text-body-secondary mb-4">Ingresá con el email y la contraseña que te dio el administrador.</p>
+
+        <partial name="_ResumenErrores" />
+
+        <form asp-action="IniciarSesion" method="post" novalidate>
+            <input type="hidden" asp-for="ReturnUrl" />
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control form-control-lg" autocomplete="username" autofocus />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Clave" class="form-label"></label>
+                <input asp-for="Clave" class="form-control form-control-lg" autocomplete="current-password" />
+                <span asp-validation-for="Clave" class="text-danger"></span>
+            </div>
+
+            <div class="form-check mb-4">
+                <input asp-for="Recordarme" class="form-check-input" />
+                <label asp-for="Recordarme" class="form-check-label"></label>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+                <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Ingresar
+            </button>
+        </form>
+
+        <p class="mt-4 mb-0 small text-body-secondary">
+            Si olvidaste tu contraseña o tu cuenta está bloqueada, pedile al administrador que la restablezca.
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

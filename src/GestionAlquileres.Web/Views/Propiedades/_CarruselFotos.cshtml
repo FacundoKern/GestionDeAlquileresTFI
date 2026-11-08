@@ -1,0 +1,74 @@
+@model GestionAlquileres.Web.ViewModels.Propiedades.GaleriaFotosViewModel
+@*
+    Fotos de la propiedad arriba de la ficha, en un carrusel de Bootstrap. No avanza solo (pasar fotos
+    automáticamente dificulta la lectura y va contra WCAG 2.2.2): se usan las flechas, las miniaturas o el teclado.
+    Sin JavaScript se ve la primera foto y la lista de enlaces a todas.
+*@
+@{
+    var fotos = Model.Fotos;
+    string Alt(int i) => string.IsNullOrWhiteSpace(fotos[i].Descripcion) ? $"Foto {i + 1} de {Model.Direccion}" : fotos[i].Descripcion!;
+}
+
+@if (fotos.Count > 0)
+{
+    <section class="mb-4" aria-labelledby="titulo-carrusel">
+        <h2 id="titulo-carrusel" class="visually-hidden">Fotos de la propiedad</h2>
+        <div id="carrusel-fotos" class="carousel slide carrusel-fotos" data-bs-ride="false" data-bs-interval="false" data-bs-touch="true">
+            <div class="carousel-inner">
+                @for (var i = 0; i < fotos.Count; i++)
+                {
+                    <div class="carousel-item @(i == 0 ? "active" : null)">
+                        <div class="carrusel-marco">
+                            <img src="@Url.Action("Ver", "FotosPropiedades", new { id = fotos[i].Id })" alt="@Alt(i)"
+                                 loading="@(i == 0 ? "eager" : "lazy")" />
+                        </div>
+                        <p class="carrusel-pie mb-0">
+                            <span class="carrusel-contador">Foto @(i + 1) de @fotos.Count</span>
+                            @if (!string.IsNullOrWhiteSpace(fotos[i].Descripcion))
+                            {
+                                <span>@fotos[i].Descripcion</span>
+                            }
+                        </p>
+                    </div>
+                }
+            </div>
+
+            @if (fotos.Count > 1)
+            {
+                <button class="carousel-control-prev" type="button" data-bs-target="#carrusel-fotos" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Foto anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carrusel-fotos" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Foto siguiente</span>
+                </button>
+
+                @* Miniaturas: Bootstrap marca la actual (clase active y aria-current) dentro de .carousel-indicators. *@
+                <div class="carousel-indicators carrusel-miniaturas">
+                    @for (var i = 0; i < fotos.Count; i++)
+                    {
+                        <button type="button" data-bs-target="#carrusel-fotos" data-bs-slide-to="@i"
+                                class="@(i == 0 ? "active" : null)" aria-current="@(i == 0 ? "true" : null)"
+                                aria-label="Ver foto @(i + 1)">
+                            <img src="@Url.Action("Ver", "FotosPropiedades", new { id = fotos[i].Id, miniatura = true })" alt="" loading="lazy" />
+                        </button>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (fotos.Count > 1)
+        {
+            <noscript>
+                <p class="mt-2 mb-0">
+                    Ver las fotos:
+                    @for (var i = 0; i < fotos.Count; i++)
+                    {
+                        <a asp-controller="FotosPropiedades" asp-action="Ver" asp-route-id="@fotos[i].Id">@Alt(i)</a>@(i < fotos.Count - 1 ? " · " : null)
+                    }
+                </p>
+            </noscript>
+        }
+    </section>
+}

@@ -1,0 +1,30 @@
+@model GestionAlquileres.Web.ViewModels.Propiedades.EliminarPropiedadViewModel
+@{
+    ViewData["Title"] = "Eliminar propiedad";
+    ViewData.EstablecerMigas(
+        new Miga("Propiedades", Url.Action("Index")!),
+        new Miga(Model.Direccion, Url.Action("Detalle", new { id = Model.Id })!));
+}
+
+<div class="card">
+    <div class="card-body">
+        @if (Model.MotivoNoSePuede is { } motivo)
+        {
+            <div class="alert alert-warning" role="alert">
+                <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> @motivo
+            </div>
+            <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Volver a la ficha</a>
+        }
+        else
+        {
+            <p class="fs-5">¿Querés eliminar la propiedad <strong>@Model.Direccion</strong>?</p>
+            <p>Dejará de aparecer en los listados y búsquedas. Sus datos quedan guardados en el historial y en la auditoría.</p>
+
+            <form asp-action="Eliminar" asp-route-id="@Model.Id" method="post" class="d-flex flex-wrap gap-2">
+                <input type="hidden" name="rowVersion" value="@Model.RowVersion" />
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash" aria-hidden="true"></i> Sí, eliminar propiedad</button>
+                <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+            </form>
+        }
+    </div>
+</div>

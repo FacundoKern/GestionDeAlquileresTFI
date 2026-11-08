@@ -1,0 +1,11 @@
+@model GestionAlquileres.Web.ViewModels.Comun.ErrorViewModel
+@{
+    ViewData["Title"] = Model.Titulo;
+}
+
+<p>@Model.Mensaje</p>
+@if (!string.IsNullOrEmpty(Model.IdSolicitud))
+{
+    <p class="text-muted">Código de referencia para soporte: <code>@Model.IdSolicitud</code></p>
+}
+<p><a asp-area="" asp-controller="Inicio" asp-action="Index">Volver al inicio</a></p>

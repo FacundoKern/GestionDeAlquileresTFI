@@ -1,0 +1,23 @@
+@*
+    Layout del área Administración. Las subsecciones de Configuración (Índices, Usuarios, Auditoría...)
+    cuelgan de la página "Configuración": el layout principal arma con eso la ruta de navegación y el botón
+    "Volver a Configuración". Contratos, Ajustes de precio y Bandeja de mora son de primer nivel.
+    Si la vista declara sus propias migas (p. ej. "Usuarios" en el alta), "Configuración" se agrega adelante.
+*@
+@{
+    Layout = "_Layout";
+    if (SeccionesConfiguracion.EsSubseccion(ViewContext.RouteData.Values["controller"]?.ToString()))
+    {
+        ViewData.EstablecerMigas([new Miga("Configuración", Url.Action("Index", "Inicio", new { area = "Administracion" })!), .. ViewData.Migas()]);
+    }
+}
+
+@RenderBody()
+
+@section Acciones {
+    @await RenderSectionAsync("Acciones", required: false)
+}
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

@@ -1,0 +1,31 @@
+@{
+    ViewData["Title"] = "Configuración";
+}
+
+<p class="lead">Valores del sistema, datos de la inmobiliaria y seguridad. Solo para el rol Administrador.</p>
+
+@for (var i = 0; i < SeccionesConfiguracion.Grupos.Count; i++)
+{
+    var grupo = SeccionesConfiguracion.Grupos[i];
+    <section class="mb-4" aria-labelledby="grupo-configuracion-@i">
+        <h2 class="h5" id="grupo-configuracion-@i">@grupo.Titulo</h2>
+        <ul class="list-unstyled row g-3">
+            @foreach (var seccion in grupo.Secciones)
+            {
+                <li class="col-md-6 col-xl-4">
+                    <div class="card tarjeta-enlace h-100">
+                        <div class="card-body d-flex gap-3">
+                            <i class="bi @seccion.Icono icono-tarjeta" aria-hidden="true"></i>
+                            <div>
+                                <h3 class="h6 card-title mb-1">
+                                    <a asp-area="Administracion" asp-controller="@seccion.Controlador" asp-action="Index" class="stretched-link">@seccion.Titulo</a>
+                                </h3>
+                                <p class="card-text mb-0">@seccion.Descripcion</p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            }
+        </ul>
+    </section>
+}

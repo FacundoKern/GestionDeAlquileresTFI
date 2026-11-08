@@ -1,0 +1,53 @@
+@model GestionAlquileres.Web.ViewModels.Personas.PersonaDatosViewModel
+@using GestionAlquileres.Web.ViewModels.Empresa
+@* Si los datos vienen parcialmente ocultos (rol Consulta), se muestran como texto, sin enlaces de llamada ni email. *@
+
+<section class="card mb-4" aria-labelledby="titulo-datos-personales">
+    <div class="card-body">
+        <h2 id="titulo-datos-personales" class="h5 card-title">Datos personales</h2>
+        @if (Model.DatosEnmascarados)
+        {
+            <p class="small text-body-secondary">
+                <i class="bi bi-eye-slash" aria-hidden="true"></i>
+                Documento, teléfono y email se muestran parcialmente ocultos para tu rol.
+            </p>
+        }
+        <dl class="ficha row mb-0">
+            <dt class="col-sm-4 col-lg-3">Tipo de persona</dt>
+            <dd class="col-sm-8 col-lg-9">@Model.TipoPersona.Nombre()</dd>
+
+            <dt class="col-sm-4 col-lg-3">Documento</dt>
+            <dd class="col-sm-8 col-lg-9">@Model.Documento</dd>
+
+            <dt class="col-sm-4 col-lg-3">Teléfono</dt>
+            <dd class="col-sm-8 col-lg-9">
+                @if (string.IsNullOrWhiteSpace(Model.Telefono)) { <span>—</span> }
+                else if (Model.DatosEnmascarados) { <span>@Model.Telefono</span> }
+                else { <a href="@DatosEmpresaViewModel.EnlaceTelefono(Model.Telefono)">@Model.Telefono</a> }
+            </dd>
+
+            <dt class="col-sm-4 col-lg-3">Email</dt>
+            <dd class="col-sm-8 col-lg-9">
+                @if (string.IsNullOrWhiteSpace(Model.Email)) { <span>—</span> }
+                else if (Model.DatosEnmascarados) { <span>@Model.Email</span> }
+                else { <a href="mailto:@Model.Email">@Model.Email</a> }
+            </dd>
+
+            <dt class="col-sm-4 col-lg-3">Domicilio</dt>
+            <dd class="col-sm-8 col-lg-9">@(Model.Domicilio ?? "—")</dd>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Notas))
+            {
+                <dt class="col-sm-4 col-lg-3">Notas</dt>
+                <dd class="col-sm-8 col-lg-9 texto-multilinea">@Model.Notas</dd>
+            }
+        </dl>
+        <p class="small text-body-secondary mt-3 mb-0">
+            Cargado por @Model.CreadoPor el @Formato.FechaHora(Model.CreadoEnUtc).
+            @if (Model.ModificadoEnUtc is { } modificado)
+            {
+                <text>Última modificación: @Model.ModificadoPor, el @Formato.FechaHora(modificado).</text>
+            }
+        </p>
+    </div>
+</section>

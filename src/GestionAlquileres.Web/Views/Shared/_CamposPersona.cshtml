@@ -1,0 +1,70 @@
+@model GestionAlquileres.Web.ViewModels.Personas.PersonaFormViewModel
+@* Campos de datos personales comunes a propietarios, inquilinos y garantes. *@
+
+<fieldset class="mb-4">
+    <legend class="h5">Identificación</legend>
+
+    <fieldset class="mb-3">
+        <legend class="form-label fs-6 mb-1">Tipo de persona</legend>
+        @foreach (var tipo in Enum.GetValues<TipoPersona>())
+        {
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" asp-for="TipoPersona" value="@tipo" id="TipoPersona_@tipo" />
+                <label class="form-check-label" for="TipoPersona_@tipo">@tipo.Nombre()</label>
+            </div>
+        }
+        <span asp-validation-for="TipoPersona" class="text-danger"></span>
+    </fieldset>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" aria-describedby="ayuda-nombre" />
+            <div id="ayuda-nombre" class="form-text">Nombre de pila, o la razón social si es una persona jurídica.</div>
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Apellido" class="form-label"></label>
+            <input asp-for="Apellido" class="form-control" aria-describedby="ayuda-apellido" />
+            <div id="ayuda-apellido" class="form-text">Solo para personas físicas.</div>
+            <span asp-validation-for="Apellido" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="TipoDocumento" class="form-label"></label>
+            <select asp-for="TipoDocumento" asp-items="Html.GetEnumSelectList<TipoDocumento>()" class="form-select"></select>
+            <span asp-validation-for="TipoDocumento" class="text-danger"></span>
+        </div>
+        <div class="col-md-8">
+            <label asp-for="NumeroDocumento" class="form-label"></label>
+            <input asp-for="NumeroDocumento" class="form-control" aria-describedby="ayuda-documento" />
+            <div id="ayuda-documento" class="form-text">Con o sin puntos y guiones. El CUIT/CUIL se valida con su dígito verificador.</div>
+            <span asp-validation-for="NumeroDocumento" class="text-danger"></span>
+        </div>
+    </div>
+</fieldset>
+
+<fieldset class="mb-4">
+    <legend class="h5">Contacto</legend>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Telefono" class="form-label"></label>
+            <input asp-for="Telefono" class="form-control" type="tel" autocomplete="off" />
+            <span asp-validation-for="Telefono" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Email" class="form-label"></label>
+            <input asp-for="Email" class="form-control" autocomplete="off" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Domicilio" class="form-label"></label>
+            <input asp-for="Domicilio" class="form-control" autocomplete="off" />
+            <span asp-validation-for="Domicilio" class="text-danger"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Notas" class="form-label"></label>
+            <textarea asp-for="Notas" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Notas" class="text-danger"></span>
+        </div>
+    </div>
+</fieldset>

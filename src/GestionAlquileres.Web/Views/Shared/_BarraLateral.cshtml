@@ -1,0 +1,67 @@
+@*
+    Menú principal (barra lateral). En pantallas grandes queda fija a la izquierda; en pantallas chicas
+    se abre como panel con el botón "Menú" de la barra superior (offcanvas de Bootstrap, con foco atrapado
+    y cierre con Escape). Cada enlace se muestra solo si el usuario cumple la MISMA política que exige
+    el controlador: la UI oculta, pero la protección real está en el servidor.
+*@
+@{
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+    var esAdministrador = (await AuthorizationService.AuthorizeAsync(User, Politicas.Administracion)).Succeeded;
+    var nombre = User.FindFirst(ClaimsPropios.NombreCompleto)?.Value ?? User.Identity?.Name;
+    var rol = Roles.Todos.FirstOrDefault(User.IsInRole);
+}
+
+<div class="offcanvas-lg offcanvas-start barra-lateral" tabindex="-1" id="barra-lateral" aria-labelledby="titulo-barra-lateral">
+    <div class="offcanvas-header">
+        <p class="h5 mb-0" id="titulo-barra-lateral">Menú</p>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#barra-lateral" aria-label="Cerrar el menú"></button>
+    </div>
+    <div class="offcanvas-body">
+        <nav aria-label="Principal" class="w-100">
+            <p class="titulo-grupo" id="grupo-operacion">Operación</p>
+            <ul class="nav flex-column" aria-labelledby="grupo-operacion">
+                <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Inicio" asp-action="Index" ga-seccion="Inicio"><i class="bi bi-house-door" aria-hidden="true"></i> Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Inquilinos" asp-action="Index" ga-seccion="Inquilinos"><i class="bi bi-people" aria-hidden="true"></i> Inquilinos</a></li>
+                <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Propietarios" asp-action="Index" ga-seccion="Propietarios"><i class="bi bi-person-badge" aria-hidden="true"></i> Propietarios</a></li>
+                <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Propiedades" asp-action="Index" ga-seccion="Propiedades"><i class="bi bi-building" aria-hidden="true"></i> Propiedades</a></li>
+                <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Garantes" asp-action="Index" ga-seccion="Garantes"><i class="bi bi-shield-check" aria-hidden="true"></i> Garantes</a></li>
+            </ul>
+
+            <p class="titulo-grupo" id="grupo-cobranza">Cobranza</p>
+            <ul class="nav flex-column" aria-labelledby="grupo-cobranza">
+                @if (puedeGestionar)
+                {
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Pagos" asp-action="Index" ga-seccion="Pagos"><i class="bi bi-cash-coin" aria-hidden="true"></i> Pagos</a></li>
+                }
+                <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Reportes" asp-action="Index" ga-seccion="Reportes"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> Reportes</a></li>
+            </ul>
+
+            @if (esAdministrador)
+            {
+                <p class="titulo-grupo" id="grupo-administracion">Administración</p>
+                <ul class="nav flex-column" aria-labelledby="grupo-administracion">
+                    <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Contratos" asp-action="Index" ga-area="Administracion" ga-seccion="Contratos"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Contratos</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Ajustes" asp-action="Index" ga-area="Administracion" ga-seccion="Ajustes"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Ajustes de precio</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Mora" asp-action="Index" ga-area="Administracion" ga-seccion="Mora"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Bandeja de mora</a></li>
+                    <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Inicio" asp-action="Index" ga-area="Administracion" ga-seccion="@SeccionesConfiguracion.Controladores"><i class="bi bi-gear" aria-hidden="true"></i> Configuración</a></li>
+                </ul>
+            }
+
+            @* En pantallas chicas, los datos de la cuenta van acá (en la barra superior solo queda "Salir"). *@
+            <div class="d-lg-none">
+                <p class="titulo-grupo" id="grupo-cuenta">Mi cuenta</p>
+                <p class="px-3 mb-1">
+                    @nombre
+                    @if (rol is not null)
+                    {
+                        <span class="visually-hidden">, rol:</span>
+                        <span class="badge text-bg-secondary ms-1">@rol</span>
+                    }
+                </p>
+                <ul class="nav flex-column" aria-labelledby="grupo-cuenta">
+                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Cuenta" asp-action="CambiarClave"><i class="bi bi-key" aria-hidden="true"></i> Cambiar contraseña</a></li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>

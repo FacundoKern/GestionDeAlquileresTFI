@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/GestionAlquileres.Web", "--launch-profile", "https"],
+      "port": 7173,
+      "url": "https://localhost:7173"
+    }
+  ]
+}

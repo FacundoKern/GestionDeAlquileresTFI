@@ -1,0 +1,119 @@
+@model GestionAlquileres.Web.ViewModels.Propiedades.PropiedadesIndexViewModel
+@{
+    ViewData["Title"] = "Propiedades";
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+    var filtro = Model.Filtro;
+    var hayFiltros = !string.IsNullOrWhiteSpace(filtro.Texto) || !string.IsNullOrWhiteSpace(filtro.Propietario)
+        || filtro.Tipo is not null || filtro.Estado is not null;
+}
+
+@section Acciones {
+    @if (puedeGestionar)
+    {
+        <a asp-action="Crear" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nueva propiedad</a>
+    }
+}
+
+<section class="card mb-4" aria-labelledby="titulo-busqueda">
+    <div class="card-body">
+        <h2 id="titulo-busqueda" class="h6 card-title">Buscar</h2>
+        <form asp-action="Index" method="get" role="search" class="row g-3 align-items-end">
+            <div class="col-md-6 col-xl-3">
+                <label for="Texto" class="form-label">Dirección o localidad</label>
+                <input id="Texto" name="Texto" value="@filtro.Texto" class="form-control" type="search" />
+            </div>
+            <div class="col-md-6 col-xl-3">
+                <label for="Propietario" class="form-label">Propietario o documento</label>
+                <input id="Propietario" name="Propietario" value="@filtro.Propietario" class="form-control" type="search" />
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label for="Tipo" class="form-label">Tipo</label>
+                <select id="Tipo" name="Tipo" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var tipo in Enum.GetValues<TipoPropiedad>())
+                    {
+                        <option value="@tipo" selected="@(filtro.Tipo == tipo)">@tipo.Nombre()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-3 col-xl-2">
+                <label for="Estado" class="form-label">Estado</label>
+                <select id="Estado" name="Estado" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var estado in Enum.GetValues<EstadoPropiedad>())
+                    {
+                        <option value="@estado" selected="@(filtro.Estado == estado)">@estado.Nombre()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 col-xl-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+                @if (hayFiltros)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="card" aria-labelledby="titulo-resultados">
+    <div class="card-body">
+        <h2 id="titulo-resultados" class="h6 card-title">@(hayFiltros ? "Resultados de la búsqueda" : "Todas las propiedades")</h2>
+
+        @if (Model.Resultados.TotalRegistros == 0)
+        {
+            <p class="mb-0">@(hayFiltros ? "No se encontraron propiedades con esos filtros." : "Todavía no hay propiedades cargadas.")</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <caption class="visually-hidden">Listado de propiedades</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col"><span class="visually-hidden">Foto</span></th>
+                            <th scope="col">Dirección</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col">Propietarios</th>
+                            <th scope="col">Estado</th>
+                            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Resultados.Items)
+                        {
+                            <tr>
+                                <td class="celda-miniatura">
+                                    @if (p.FotoPrincipalId is { } fotoId)
+                                    {
+                                        @* Decorativa: la dirección de al lado ya identifica la propiedad. *@
+                                        <img src="@Url.Action("Ver", "FotosPropiedades", new { id = fotoId, miniatura = true })" alt="" loading="lazy" class="miniatura-listado" />
+                                    }
+                                    else
+                                    {
+                                        <span class="miniatura-vacia" aria-hidden="true"><i class="bi bi-house"></i></span>
+                                    }
+                                </td>
+                                <th scope="row" class="fw-normal"><a asp-action="Detalle" asp-route-id="@p.Id">@p.Direccion</a></th>
+                                <td>@p.Tipo.Nombre()</td>
+                                <td>@p.Propietarios</td>
+                                <td><partial name="_EstadoPropiedad" model="p.Estado" /></td>
+                                <td class="text-end text-nowrap">
+                                    @if (puedeGestionar)
+                                    {
+                                        <a asp-action="Editar" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i> Editar<span class="visually-hidden"> @p.Direccion</span>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="_Paginacion" model="@(new PaginacionViewModel(Model.Resultados.Pagina, Model.Resultados.TotalPaginas, Model.Resultados.TotalRegistros, new Dictionary<string, string?> { ["Texto"] = filtro.Texto, ["Propietario"] = filtro.Propietario, ["Tipo"] = filtro.Tipo?.ToString(), ["Estado"] = filtro.Estado?.ToString() }))" />
+        }
+    </div>
+</section>

@@ -1,0 +1,109 @@
+@model GestionAlquileres.Web.ViewModels.Usuarios.UsuarioEditarViewModel
+@{
+    ViewData["Title"] = Model.NombreCompleto;
+    ViewData.EstablecerMigas(new Miga("Usuarios", Url.Action("Index")!));
+    var estado = Model.Estado!;
+    ViewData["Deshabilitado"] = Model.EsUstedMismo;
+}
+
+<div class="row g-4">
+    <div class="col-xl-8">
+        <partial name="_ResumenErrores" />
+
+        <form asp-action="Editar" asp-route-id="@Model.Id" method="post" novalidate class="card">
+            <input type="hidden" asp-for="ConcurrencyStamp" />
+            <div class="card-body">
+                <fieldset class="mb-4">
+                    <legend class="h5">Datos</legend>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="NombreCompleto" class="form-label"></label>
+                            <input asp-for="NombreCompleto" class="form-control" autocomplete="off" />
+                            <span asp-validation-for="NombreCompleto" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" autocomplete="off" aria-describedby="ayuda-email" />
+                            <div id="ayuda-email" class="form-text">Si lo cambiás, el usuario va a tener que ingresar con el email nuevo.</div>
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <partial name="_SelectorRol" model="Model.Rol" view-data="ViewData" />
+
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Guardar cambios</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-xl-4">
+        <section class="card mb-4" aria-labelledby="titulo-estado">
+            <div class="card-body">
+                <h2 id="titulo-estado" class="h5 card-title">Estado de la cuenta</h2>
+                <partial name="_EstadoUsuario" model="estado" />
+                <dl class="mt-3 mb-0">
+                    <dt>Creado</dt>
+                    <dd>@Formato.FechaHora(estado.CreadoEnUtc)</dd>
+                    <dt>Último ingreso</dt>
+                    <dd class="mb-0">@(estado.UltimoIngresoUtc is { } ingreso ? Formato.FechaHora(ingreso) : "Nunca ingresó")</dd>
+                </dl>
+            </div>
+        </section>
+
+        <section class="card" aria-labelledby="titulo-acciones-cuenta">
+            <div class="card-body">
+                <h2 id="titulo-acciones-cuenta" class="h5 card-title">Acciones</h2>
+                @if (Model.EsUstedMismo)
+                {
+                    <p class="mb-0">
+                        Es tu propia cuenta: no podés desactivarla ni resetear tu contraseña desde acá.
+                        Para cambiar tu contraseña usá <a asp-area="" asp-controller="Cuenta" asp-action="CambiarClave">Cambiar contraseña</a>.
+                    </p>
+                }
+                else
+                {
+                    <div class="d-grid gap-3">
+                        @if (estado.Bloqueado)
+                        {
+                            <form asp-action="Desbloquear" asp-route-id="@Model.Id" method="post">
+                                <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-unlock" aria-hidden="true"></i> Desbloquear</button>
+                                <div class="form-text">Se bloqueó por varios intentos fallidos. Desbloquealo si confirmaste que fue la misma persona.</div>
+                            </form>
+                        }
+
+                        <div>
+                            <a asp-action="ResetearClave" asp-route-id="@Model.Id" class="btn btn-outline-primary w-100"><i class="bi bi-key" aria-hidden="true"></i> Resetear contraseña</a>
+                            <div class="form-text">Para cuando se la olvidó. Le asignás una temporal y la cambia al ingresar.</div>
+                        </div>
+
+                        @if (estado.Activo)
+                        {
+                            <form asp-action="Desactivar" asp-route-id="@Model.Id" method="post">
+                                <button type="submit" class="btn btn-outline-danger w-100"><i class="bi bi-person-slash" aria-hidden="true"></i> Desactivar cuenta</button>
+                                <div class="form-text">No va a poder ingresar más. Su historial se conserva y la podés volver a activar.</div>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Activar" asp-route-id="@Model.Id" method="post">
+                                <button type="submit" class="btn btn-outline-success w-100"><i class="bi bi-person-check" aria-hidden="true"></i> Activar cuenta</button>
+                            </form>
+                        }
+
+                        <a asp-controller="Auditoria" asp-action="Index" asp-route-Entidad="Usuario" asp-route-EntidadId="@Model.Id" class="btn btn-link px-0 text-start">
+                            <i class="bi bi-journal-text" aria-hidden="true"></i> Ver la actividad de gestión de esta cuenta
+                        </a>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

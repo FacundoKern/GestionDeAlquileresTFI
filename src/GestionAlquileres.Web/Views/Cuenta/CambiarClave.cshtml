@@ -1,0 +1,45 @@
+@model GestionAlquileres.Web.ViewModels.Cuenta.CambiarClaveViewModel
+@{
+    ViewData["Title"] = "Cambiar contraseña";
+}
+
+<div class="row">
+    <div class="col-md-8 col-lg-6">
+        @if (Model.EsObligatorio)
+        {
+            <div class="alert alert-info" role="status">
+                Antes de continuar tenés que elegir una contraseña nueva.
+            </div>
+        }
+
+        <p id="requisitos-clave">
+            La contraseña debe tener al menos 12 caracteres e incluir mayúsculas, minúsculas, números y algún
+            símbolo (por ejemplo ! # $ %).
+        </p>
+
+        <partial name="_ResumenErrores" />
+
+        <form asp-action="CambiarClave" method="post" novalidate>
+            <div class="mb-3">
+                <label asp-for="ClaveActual" class="form-label"></label>
+                <input asp-for="ClaveActual" class="form-control" autocomplete="current-password" />
+                <span asp-validation-for="ClaveActual" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ClaveNueva" class="form-label"></label>
+                <input asp-for="ClaveNueva" class="form-control" autocomplete="new-password" aria-describedby="requisitos-clave" />
+                <span asp-validation-for="ClaveNueva" class="text-danger"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="ConfirmarClave" class="form-label"></label>
+                <input asp-for="ConfirmarClave" class="form-control" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmarClave" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar contraseña</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

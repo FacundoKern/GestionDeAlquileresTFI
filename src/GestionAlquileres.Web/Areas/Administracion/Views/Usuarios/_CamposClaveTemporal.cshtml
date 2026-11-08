@@ -1,0 +1,22 @@
+@model GestionAlquileres.Web.ViewModels.Usuarios.ClaveTemporalViewModel
+@* Contraseña temporal (alta y reseteo). El usuario la cambia en su primer ingreso. *@
+
+<fieldset class="mb-4">
+    <legend class="h5">Contraseña temporal</legend>
+    <p id="requisitos-clave" class="form-text mt-0">
+        @GestionAlquileres.Web.ViewModels.Usuarios.RequisitosClave.Texto
+        Comunicásela al usuario en persona (no por email ni por mensaje): el sistema le va a pedir que la cambie al ingresar.
+    </p>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label asp-for="Clave" class="form-label"></label>
+            <input asp-for="Clave" class="form-control" autocomplete="new-password" aria-describedby="requisitos-clave" />
+            <span asp-validation-for="Clave" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="ConfirmarClave" class="form-label"></label>
+            <input asp-for="ConfirmarClave" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="ConfirmarClave" class="text-danger"></span>
+        </div>
+    </div>
+</fieldset>

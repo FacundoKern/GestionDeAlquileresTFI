@@ -1,0 +1,669 @@
+/*
+ * Estilos propios sobre Bootstrap 5.3. Objetivo WCAG 2.1 AA:
+ * - Contraste mínimo 4.5:1 en texto (los azules están oscurecidos respecto de Bootstrap).
+ * - Foco siempre visible.
+ * - El estado nunca se comunica solo con color (semáforo: ícono + texto; menú: peso + barra + aria-current).
+ * Sin estilos inline: la CSP no los permite.
+ * Colores de marca provisorios (azul marino) hasta que el cliente defina los suyos: cambiar las variables --ga-*.
+ */
+
+:root {
+    --ga-marca: #12355b;            /* barra superior: contraste 12:1 con blanco */
+    --ga-primario: #0a58ca;         /* enlaces y botones: 6.1:1 sobre blanco */
+    --ga-primario-hover: #084298;
+    --ga-primario-activo: #073a85;
+    --ga-primario-suave: #e7effc;   /* fondo del ítem activo del menú */
+    --ga-fondo: #f4f6f9;            /* fondo de página, detrás de las tarjetas */
+    --ga-borde: #dfe3e8;
+    --ga-texto-secundario: #555e68; /* 6.4:1 sobre blanco, 5.9:1 sobre el fondo */
+    --ga-foco: #b35c00;             /* anillo de foco, distinguible del azul */
+    --ga-foco-sobre-oscuro: #ffd28a;
+    --ga-alto-barra: 3.5rem;
+    --ga-ancho-menu: 15.5rem;
+
+    --bs-link-color: var(--ga-primario);
+    --bs-link-color-rgb: 10, 88, 202;
+    --bs-link-hover-color: var(--ga-primario-hover);
+    --bs-link-hover-color-rgb: 8, 66, 152;
+    --bs-border-color: var(--ga-borde);
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    background-color: var(--ga-fondo);
+}
+
+main:focus {
+    outline: none; /* destino del enlace de salto: no necesita anillo */
+}
+
+/* ---------- Foco visible ---------- */
+
+:focus-visible,
+.btn:focus-visible,
+.btn-close:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible,
+.page-link:focus-visible,
+.nav-link:focus-visible {
+    outline: 3px solid var(--ga-foco);
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+.barra-superior :focus-visible {
+    outline-color: var(--ga-foco-sobre-oscuro);
+}
+
+/* ---------- Enlace para saltar al contenido ---------- */
+
+.enlace-salto {
+    position: absolute;
+    left: 1rem;
+    top: -100px;
+    z-index: 2000;
+    padding: 0.75rem 1rem;
+    background: #fff;
+    color: #000;
+    border: 3px solid var(--ga-foco);
+    font-weight: 600;
+}
+
+.enlace-salto:focus {
+    top: 0.5rem;
+}
+
+/* ---------- Barra superior ---------- */
+
+.barra-superior {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: var(--ga-alto-barra);
+    padding: 0.5rem 1.25rem;
+    background-color: var(--ga-marca);
+    color: #fff;
+}
+
+.marca {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: #fff;
+    text-decoration: none;
+}
+
+.marca:hover {
+    color: #fff;
+}
+
+@media (max-width: 575.98px) {
+    .barra-superior {
+        gap: 0.6rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .marca {
+        font-size: 1rem;
+        line-height: 1.2;
+    }
+}
+
+/* Logo de la inmobiliaria: altura fija, ancho proporcional. En la barra oscura va la versión con texto claro. */
+.logo-empresa {
+    height: 40px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+}
+
+/* Con logo, el nombre del sistema queda como subtítulo separado por una línea. */
+.nombre-sistema.con-logo {
+    padding-left: 0.75rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.45);
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+@media (max-width: 575.98px) {
+    .logo-empresa {
+        height: 32px;
+    }
+
+    .nombre-sistema.con-logo {
+        display: none; /* en celulares alcanza con el logo */
+    }
+}
+
+/* ---------- Fotos de propiedades ---------- */
+
+/* Carrusel de la ficha: la foto entra completa (sin recortar las verticales) sobre un fondo oscuro neutro. */
+.carrusel-fotos {
+    background-color: #fff;
+    border: 1px solid var(--ga-borde);
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+.carrusel-marco {
+    aspect-ratio: 16 / 9;
+    max-height: 30rem;
+    width: 100%;
+    background-color: #1d2733;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carrusel-marco img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.carrusel-pie {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+}
+
+.carrusel-contador {
+    color: var(--ga-texto-secundario);
+    white-space: nowrap;
+}
+
+/* Flechas: solo sobre la foto (no sobre el pie ni las miniaturas), con fondo para que se vean sobre fotos claras. */
+.carrusel-fotos .carousel-control-prev,
+.carrusel-fotos .carousel-control-next {
+    bottom: auto;
+    height: min(30rem, 56.25vw);
+    width: 3.5rem;
+    opacity: 1;
+}
+
+.carrusel-fotos .carousel-control-prev-icon,
+.carrusel-fotos .carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.55);
+    border-radius: 50%;
+    background-size: 55%;
+    width: 2.5rem;
+    height: 2.5rem;
+}
+
+/* Miniaturas debajo de la foto (reemplazan a las rayitas de los indicadores de Bootstrap). */
+.carrusel-fotos .carrusel-miniaturas {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0 1rem 1rem;
+}
+
+.carrusel-fotos .carrusel-miniaturas [data-bs-slide-to] {
+    box-sizing: border-box;
+    width: 4.5rem;
+    height: 3.25rem;
+    margin: 0;
+    padding: 0;
+    text-indent: 0;
+    border: 2px solid transparent;
+    border-radius: 0.375rem;
+    background: none;
+    opacity: 0.65;
+    overflow: hidden;
+}
+
+.carrusel-fotos .carrusel-miniaturas [data-bs-slide-to].active {
+    border-color: var(--ga-primario);
+    opacity: 1;
+}
+
+.carrusel-fotos .carrusel-miniaturas img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.foto-propiedad img {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover; /* miniaturas parejas en la grilla; la foto completa se ve al abrirla */
+    background-color: var(--ga-fondo);
+}
+
+.opciones-foto summary {
+    cursor: pointer;
+    color: var(--ga-primario);
+    font-size: 0.875rem;
+}
+
+.celda-miniatura {
+    width: 4.5rem;
+}
+
+.miniatura-listado,
+.miniatura-vacia {
+    display: block;
+    width: 4rem;
+    height: 3rem;
+    border-radius: 0.375rem;
+}
+
+.miniatura-listado {
+    object-fit: cover;
+}
+
+.miniatura-vacia {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--ga-fondo);
+    color: var(--ga-texto-secundario);
+    font-size: 1.25rem;
+}
+
+.foto-confirmar {
+    max-width: 20rem;
+}
+
+.logo-login {
+    height: 72px;
+    width: auto;
+    max-width: 100%;
+}
+
+.logo-resumen {
+    height: 56px;
+    width: auto;
+    max-width: 100%;
+}
+
+.menu-cuenta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    font-size: 0.9rem;
+}
+
+.menu-cuenta a {
+    color: #fff;
+}
+
+.menu-cuenta a:hover {
+    color: var(--ga-foco-sobre-oscuro);
+}
+
+/* ---------- Estructura: menú lateral + contenido ---------- */
+
+.cuerpo-app {
+    display: flex;
+    min-height: calc(100vh - var(--ga-alto-barra));
+}
+
+.columna-contenido {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.contenido {
+    flex: 1 0 auto;
+    width: 100%;
+    max-width: 1440px;
+    padding: 1.5rem 1rem 2rem;
+}
+
+@media (min-width: 768px) {
+    .contenido {
+        padding: 1.75rem 2rem 2.5rem;
+    }
+}
+
+/* ---------- Menú lateral ---------- */
+
+.barra-lateral .offcanvas-body {
+    padding: 1rem 0.75rem;
+}
+
+@media (min-width: 992px) {
+    /* En pantallas grandes el offcanvas-lg queda fijo como columna. */
+    .barra-lateral {
+        position: sticky;
+        top: var(--ga-alto-barra);
+        flex: 0 0 var(--ga-ancho-menu);
+        width: var(--ga-ancho-menu);
+        height: calc(100vh - var(--ga-alto-barra));
+        overflow-y: auto;
+        background-color: #fff;
+        border-right: 1px solid var(--ga-borde);
+    }
+}
+
+.titulo-grupo {
+    margin: 1.25rem 0.75rem 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: var(--ga-texto-secundario);
+}
+
+nav > .titulo-grupo:first-child {
+    margin-top: 0;
+}
+
+.barra-lateral .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.5rem;
+    color: #212529;
+    font-size: 1rem;
+}
+
+.barra-lateral .nav-link .bi {
+    font-size: 1.15rem;
+}
+
+.barra-lateral .nav-link:hover {
+    background-color: #eef1f5;
+    color: #000;
+}
+
+/* Sección actual: fondo, barra a la izquierda y negrita (no depende solo del color) + aria-current. */
+.barra-lateral .nav-link.active,
+.barra-lateral .nav-link[aria-current="page"] {
+    background-color: var(--ga-primario-suave);
+    color: var(--ga-primario-hover);
+    font-weight: 700;
+    box-shadow: inset 4px 0 0 var(--ga-primario);
+}
+
+/* ---------- Encabezado de página ---------- */
+
+.encabezado-pagina {
+    margin-bottom: 1.5rem;
+}
+
+.encabezado-pagina .breadcrumb {
+    font-size: 0.9rem;
+}
+
+.titulo-pagina {
+    margin: 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.acciones-pagina {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ---------- Tarjetas ---------- */
+
+.card {
+    --bs-card-border-color: var(--ga-borde);
+    --bs-card-border-radius: 0.75rem;
+    --bs-card-inner-border-radius: calc(0.75rem - 1px);
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.tarjeta-enlace:hover,
+.tarjeta-enlace:focus-within {
+    border-color: var(--ga-primario);
+}
+
+.icono-tarjeta {
+    font-size: 1.5rem;
+    line-height: 1;
+    color: var(--ga-primario);
+}
+
+/* Indicadores del tablero: el número y el título transmiten la información; el color solo la refuerza. */
+.indicador-titulo {
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+    color: #343a40;
+}
+
+.indicador-valor {
+    margin-bottom: 0.25rem;
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.indicador-detalle {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+    color: var(--ga-texto-secundario);
+}
+
+.indicador-atencion {
+    background-color: #fff8e6;
+    border-color: #e7c873;
+}
+
+.indicador-atencion .indicador-valor {
+    color: #664d03;
+}
+
+.indicador-critico {
+    background-color: #fdedef;
+    border-color: #e3a3aa;
+}
+
+.indicador-critico .indicador-valor {
+    color: #842029;
+}
+
+/* ---------- Login ---------- */
+
+.pagina-publica {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.contenido-publico {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1rem;
+}
+
+.tarjeta-login {
+    width: 100%;
+    max-width: 28rem;
+}
+
+/* ---------- Botones con contraste suficiente ---------- */
+
+.btn-primary {
+    --bs-btn-bg: var(--ga-primario);
+    --bs-btn-border-color: var(--ga-primario);
+    --bs-btn-hover-bg: var(--ga-primario-hover);
+    --bs-btn-hover-border-color: var(--ga-primario-hover);
+    --bs-btn-active-bg: var(--ga-primario-activo);
+    --bs-btn-active-border-color: var(--ga-primario-activo);
+    --bs-btn-disabled-bg: var(--ga-primario);
+    --bs-btn-disabled-border-color: var(--ga-primario);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--ga-primario);
+    --bs-btn-border-color: var(--ga-primario);
+    --bs-btn-hover-bg: var(--ga-primario);
+    --bs-btn-hover-border-color: var(--ga-primario);
+    --bs-btn-active-bg: var(--ga-primario-hover);
+    --bs-btn-active-border-color: var(--ga-primario-hover);
+}
+
+/* ---------- Formularios ---------- */
+
+/* Casillas más grandes y fáciles de tocar (usuarios mayores, pantallas táctiles). */
+.form-check {
+    padding-left: 2em;
+}
+
+.form-check .form-check-input {
+    width: 1.35em;
+    height: 1.35em;
+    margin-top: 0.1em;
+    margin-left: -2em;
+}
+
+.form-check-label {
+    cursor: pointer;
+}
+
+.texto-obligatorio {
+    font-weight: 400;
+    font-size: 0.875em;
+    color: #595959; /* 7:1 sobre blanco */
+}
+
+.field-validation-error {
+    display: block;
+    margin-top: 0.25rem;
+    font-weight: 600;
+}
+
+.input-validation-error {
+    border-color: #b02a37;
+    border-width: 2px;
+}
+
+.validation-summary-errors ul {
+    margin-bottom: 0;
+}
+
+/* ---------- Semáforo de estado (ícono + texto + color) ---------- */
+
+.semaforo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: 1rem;
+    border: 1px solid currentColor;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.semaforo-icono {
+    font-weight: 700;
+}
+
+.semaforo-al-dia {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.semaforo-atencion {
+    background-color: #fff3cd;
+    color: #664d03;
+}
+
+.semaforo-critico {
+    background-color: #f8d7da;
+    color: #842029;
+}
+
+.semaforo-neutro {
+    background-color: #e9ecef;
+    color: #41464b;
+}
+
+/* ---------- Pie de página ---------- */
+
+.pie-pagina {
+    padding: 1.5rem 1rem;
+    background-color: #eceff3;
+    border-top: 1px solid var(--ga-borde);
+    color: #212529;
+    font-size: 0.9rem;
+}
+
+@media (min-width: 768px) {
+    .pie-pagina {
+        padding: 1.5rem 2rem;
+    }
+}
+
+.pie-pagina .container {
+    max-width: 1440px;
+    margin-left: 0;
+    padding: 0;
+}
+
+.pagina-publica .pie-pagina .container {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 1rem;
+}
+
+.pie-pagina h2 {
+    font-weight: 700;
+}
+
+.pie-pagina li {
+    margin-bottom: 0.2rem;
+}
+
+.etiqueta-pie {
+    font-weight: 600;
+}
+
+.aviso-pie {
+    color: #495057; /* 7.6:1 sobre el fondo del pie */
+    border-top: 1px solid #d5dbe3;
+    padding-top: 0.75rem;
+}
+
+/* ---------- Tablas y fichas ---------- */
+
+.table caption {
+    caption-side: top;
+    color: #212529;
+    font-weight: 600;
+}
+
+.ficha dt {
+    font-weight: 600;
+}
+
+.texto-multilinea {
+    white-space: pre-line;
+}
+
+/* Etiqueta arriba y valor abajo: para columnas angostas (p. ej. el recuadro del inicio). */
+.datos-apilados dt {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--ga-texto-secundario);
+}
+
+.datos-apilados dd {
+    margin-bottom: 0.6rem;
+}

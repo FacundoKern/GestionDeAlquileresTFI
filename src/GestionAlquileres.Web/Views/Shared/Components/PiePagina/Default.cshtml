@@ -1,0 +1,63 @@
+@model GestionAlquileres.Web.ViewModels.Empresa.DatosEmpresaViewModel?
+@using GestionAlquileres.Web.ViewModels.Empresa
+
+<div class="container">
+    <div class="row gy-3">
+        @if (Model is not null)
+        {
+            <div class="col-md-6">
+                <h2 class="h6 mb-2">@Model.NombreComercial</h2>
+                <ul class="list-unstyled mb-0">
+                    @if (Model.DireccionCompleta is { } direccion)
+                    {
+                        <li><span class="etiqueta-pie">Dirección:</span> @direccion</li>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Telefono))
+                    {
+                        <li><span class="etiqueta-pie">Teléfono:</span> <a href="@DatosEmpresaViewModel.EnlaceTelefono(Model.Telefono)">@Model.Telefono</a></li>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Whatsapp))
+                    {
+                        <li>
+                            <span class="etiqueta-pie">WhatsApp:</span>
+                            <a href="@DatosEmpresaViewModel.EnlaceWhatsapp(Model.Whatsapp)" target="_blank" rel="noopener noreferrer">@Model.Whatsapp<span class="visually-hidden"> (se abre en una pestaña nueva)</span></a>
+                        </li>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.Email))
+                    {
+                        <li><span class="etiqueta-pie">Email:</span> <a href="mailto:@Model.Email">@Model.Email</a></li>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(Model.HorarioAtencion))
+                    {
+                        <li><span class="etiqueta-pie">Horario:</span> @Model.HorarioAtencion</li>
+                    }
+                </ul>
+            </div>
+
+            @if (Model.TieneSoporte)
+            {
+                <div class="col-md-6">
+                    <h2 class="h6 mb-2">Soporte técnico del sistema</h2>
+                    <ul class="list-unstyled mb-0">
+                        @if (!string.IsNullOrWhiteSpace(Model.SoporteNombre))
+                        {
+                            <li>@Model.SoporteNombre</li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.SoporteTelefono))
+                        {
+                            <li><span class="etiqueta-pie">Teléfono:</span> <a href="@DatosEmpresaViewModel.EnlaceTelefono(Model.SoporteTelefono)">@Model.SoporteTelefono</a></li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(Model.SoporteEmail))
+                        {
+                            <li><span class="etiqueta-pie">Email:</span> <a href="mailto:@Model.SoporteEmail">@Model.SoporteEmail</a></li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+
+        <div class="col-12">
+            <p class="small mb-0 aviso-pie">Los recibos emitidos por este sistema no son comprobantes fiscales.</p>
+        </div>
+    </div>
+</div>

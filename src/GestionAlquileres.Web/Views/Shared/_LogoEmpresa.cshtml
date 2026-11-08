@@ -1,0 +1,25 @@
+@*
+    Logo de la inmobiliaria. ViewData["LogoSobreOscuro"] = true usa la versión para la barra oscura;
+    ViewData["LogoClase"] define el tamaño. No muestra nada si el archivo no existe.
+    El texto alternativo es el nombre comercial cargado en Administración → Datos de la inmobiliaria, salvo
+    con ViewData["LogoDecorativo"] = true (el nombre ya está escrito al lado: alt vacío para no repetirlo).
+*@
+@using GestionAlquileres.Web.Infrastructure.Configuracion
+@using GestionAlquileres.Web.Services.Empresa
+@using Microsoft.Extensions.Options
+@inject IOptions<EmpresaOptions> OpcionesEmpresa
+@inject IWebHostEnvironment Entorno
+@inject IDatosEmpresaService DatosEmpresa
+@{
+    var opciones = OpcionesEmpresa.Value;
+    var sobreOscuro = ViewData["LogoSobreOscuro"] as bool? ?? false;
+    var logo = sobreOscuro && !string.IsNullOrWhiteSpace(opciones.LogoSobreOscuro) ? opciones.LogoSobreOscuro : opciones.Logo;
+    var existe = !string.IsNullOrWhiteSpace(logo) && Entorno.WebRootFileProvider.GetFileInfo(logo).Exists;
+}
+@if (existe)
+{
+    var alt = ViewData["LogoDecorativo"] as bool? == true
+        ? string.Empty
+        : (await DatosEmpresa.ObtenerAsync())?.NombreComercial ?? "Logo de la inmobiliaria";
+    <img src="~/@logo" alt="@alt" class="@(ViewData["LogoClase"] ?? "logo-empresa")" asp-append-version="true" />
+}

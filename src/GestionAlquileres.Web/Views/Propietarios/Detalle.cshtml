@@ -1,0 +1,78 @@
+@model GestionAlquileres.Web.ViewModels.Propietarios.PropietarioDetalleViewModel
+@{
+    ViewData["Title"] = Model.Datos.NombreCompleto;
+    ViewData.EstablecerMigas(new Miga("Propietarios", Url.Action("Index")!));
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+}
+
+@section Acciones {
+    @*
+        TODO (junto con los PDF de fase 3): botón "Descargar ficha en PDF" (QuestPDF), para todos los roles.
+        Contenido aprobado: encabezado con datos de la inmobiliaria y fecha; datos del propietario (sin notas
+        internas); propiedades con participación y estado; contratos con estado en texto; pie con número de
+        página. Enmascarado para Consulta y descarga auditada. Mismo botón en Inquilinos, Propiedades y Garantes.
+    *@
+    @if (puedeGestionar)
+    {
+        <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+        <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash" aria-hidden="true"></i> Eliminar</a>
+    }
+}
+
+<partial name="_DatosPersona" model="Model.Datos" />
+
+<section class="card mb-4" aria-labelledby="titulo-propiedades">
+    <div class="card-body">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+            <h2 id="titulo-propiedades" class="h5 card-title mb-0">Propiedades</h2>
+            @if (puedeGestionar)
+            {
+                <a asp-controller="Propiedades" asp-action="Crear" asp-route-propietarioId="@Model.Id" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-plus-lg" aria-hidden="true"></i> Nueva propiedad de este propietario
+                </a>
+            }
+        </div>
+        @if (Model.Propiedades.Count == 0)
+        {
+            <p class="mb-0">No figura como propietario de ninguna propiedad.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <caption class="visually-hidden">Propiedades de las que es propietario</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Dirección</th>
+                            <th scope="col">Tipo</th>
+                            <th scope="col" class="text-end">Participación</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var propiedad in Model.Propiedades)
+                        {
+                            <tr>
+                                <th scope="row" class="fw-normal">
+                                    <a asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@propiedad.Id">@propiedad.Direccion</a>
+                                </th>
+                                <td>@propiedad.Tipo.Nombre()</td>
+                                <td class="text-end">@Formato.Porcentaje(propiedad.Porcentaje)</td>
+                                <td><partial name="_EstadoPropiedad" model="propiedad.Estado" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+@if (Model.Contratos is { } contratos)
+{
+    <partial name="_TablaContratos" model="contratos" />
+}
+else
+{
+    <partial name="_ContratosNoDisponibles" />
+}

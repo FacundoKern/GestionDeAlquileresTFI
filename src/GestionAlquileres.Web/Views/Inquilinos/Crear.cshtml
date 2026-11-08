@@ -1,0 +1,21 @@
+@model GestionAlquileres.Web.ViewModels.Inquilinos.InquilinoFormViewModel
+@{
+    ViewData["Title"] = "Nuevo inquilino";
+    ViewData.EstablecerMigas(new Miga("Inquilinos", Url.Action("Index")!));
+}
+
+<partial name="_ResumenErrores" />
+
+<form asp-action="Crear" method="post" novalidate class="card">
+    <div class="card-body">
+        <partial name="_CamposPersona" model="Model" />
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Guardar inquilino</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

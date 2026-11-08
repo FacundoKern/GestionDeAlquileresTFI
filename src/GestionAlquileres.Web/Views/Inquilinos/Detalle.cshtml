@@ -1,0 +1,31 @@
+@model GestionAlquileres.Web.ViewModels.Inquilinos.InquilinoDetalleViewModel
+@{
+    ViewData["Title"] = Model.Datos.NombreCompleto;
+    ViewData.EstablecerMigas(new Miga("Inquilinos", Url.Action("Index")!));
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+}
+
+@section Acciones {
+    @*
+        TODO (junto con los PDF de fase 3): botón "Descargar ficha en PDF" (QuestPDF), para todos los roles.
+        Mismo contenido que la ficha del propietario: encabezado con datos de la inmobiliaria y fecha; datos del
+        inquilino (sin notas internas); contratos con estado en texto; pie con número de página.
+        Enmascarado para Consulta y descarga auditada.
+    *@
+    @if (puedeGestionar)
+    {
+        <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+        <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash" aria-hidden="true"></i> Eliminar</a>
+    }
+}
+
+<partial name="_DatosPersona" model="Model.Datos" />
+
+@if (Model.Contratos is { } contratos)
+{
+    <partial name="_TablaContratos" model="contratos" />
+}
+else
+{
+    <partial name="_ContratosNoDisponibles" />
+}

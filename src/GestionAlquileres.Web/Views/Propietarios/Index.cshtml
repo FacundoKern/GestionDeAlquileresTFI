@@ -1,0 +1,91 @@
+@model GestionAlquileres.Web.ViewModels.Propietarios.PropietariosIndexViewModel
+@{
+    ViewData["Title"] = "Propietarios";
+    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+    var hayFiltros = !string.IsNullOrWhiteSpace(Model.Filtro.Texto) || !string.IsNullOrWhiteSpace(Model.Filtro.Propiedad);
+}
+
+@section Acciones {
+    @if (puedeGestionar)
+    {
+        <a asp-action="Crear" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo propietario</a>
+    }
+}
+
+<section class="card mb-4" aria-labelledby="titulo-busqueda">
+    <div class="card-body">
+        <h2 id="titulo-busqueda" class="h6 card-title">Buscar</h2>
+        <form asp-action="Index" method="get" role="search" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="Texto" class="form-label">Nombre o documento</label>
+                <input id="Texto" name="Texto" value="@Model.Filtro.Texto" class="form-control" type="search" />
+            </div>
+            <div class="col-md-4">
+                <label for="Propiedad" class="form-label">Propiedad (calle o localidad)</label>
+                <input id="Propiedad" name="Propiedad" value="@Model.Filtro.Propiedad" class="form-control" type="search" />
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+                @if (hayFiltros)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="card" aria-labelledby="titulo-resultados">
+    <div class="card-body">
+        <h2 id="titulo-resultados" class="h6 card-title">@(hayFiltros ? "Resultados de la búsqueda" : "Todos los propietarios")</h2>
+
+        @if (Model.Resultados.TotalRegistros == 0)
+        {
+            <p class="mb-0">
+                @(hayFiltros ? "No se encontraron propietarios con esos filtros." : "Todavía no hay propietarios cargados.")
+            </p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <caption class="visually-hidden">Listado de propietarios</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Documento</th>
+                            <th scope="col">Teléfono</th>
+                            <th scope="col">Email</th>
+                            <th scope="col" class="text-end">Propiedades</th>
+                            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var p in Model.Resultados.Items)
+                        {
+                            <tr>
+                                <th scope="row" class="fw-normal">
+                                    <a asp-action="Detalle" asp-route-id="@p.Id">@p.Nombre</a>
+                                </th>
+                                <td class="text-nowrap">@p.Documento</td>
+                                <td class="text-nowrap">@(p.Telefono ?? "—")</td>
+                                <td>@(p.Email ?? "—")</td>
+                                <td class="text-end">@p.CantidadPropiedades</td>
+                                <td class="text-end text-nowrap">
+                                    @if (puedeGestionar)
+                                    {
+                                        <a asp-action="Editar" asp-route-id="@p.Id" class="btn btn-outline-primary btn-sm">
+                                            <i class="bi bi-pencil" aria-hidden="true"></i> Editar<span class="visually-hidden"> a @p.Nombre</span>
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="_Paginacion" model="@(new PaginacionViewModel(Model.Resultados.Pagina, Model.Resultados.TotalPaginas, Model.Resultados.TotalRegistros, new Dictionary<string, string?> { ["Texto"] = Model.Filtro.Texto, ["Propiedad"] = Model.Filtro.Propiedad }))" />
+        }
+    </div>
+</section>
