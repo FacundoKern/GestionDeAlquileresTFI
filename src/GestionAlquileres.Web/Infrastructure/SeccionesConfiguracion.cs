@@ -7,13 +7,9 @@ namespace GestionAlquileres.Web.Infrastructure;
 /// </summary>
 public static class SeccionesConfiguracion
 {
+    // Índices e Impuestos y mora no se listan en el TFI: siguen "en construcción" (SeccionesProvisoriasController).
     public static readonly IReadOnlyList<GrupoConfiguracion> Grupos =
     [
-        new("Valores del sistema",
-        [
-            new("Indices", "Índices", "Carga de valores de ICL, IPC, Casa Propia y otros índices.", "bi-percent"),
-            new("ImpuestosMora", "Impuestos y mora", "Impuestos y configuración de mora, con vigencia.", "bi-sliders"),
-        ]),
         new("Inmobiliaria",
         [
             new("DatosEmpresa", "Datos de la inmobiliaria", "Nombre, contacto y datos fiscales que se muestran en el pie, el inicio y los documentos.", "bi-shop"),

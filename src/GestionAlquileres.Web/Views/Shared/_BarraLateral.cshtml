@@ -5,7 +5,6 @@
     el controlador: la UI oculta, pero la protección real está en el servidor.
 *@
 @{
-    var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
     var esAdministrador = (await AuthorizationService.AuthorizeAsync(User, Politicas.Administracion)).Succeeded;
     var nombre = User.FindFirst(ClaimsPropios.NombreCompleto)?.Value ?? User.Identity?.Name;
     var rol = Roles.Todos.FirstOrDefault(User.IsInRole);
@@ -27,22 +26,14 @@
                 <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Garantes" asp-action="Index" ga-seccion="Garantes"><i class="bi bi-shield-check" aria-hidden="true"></i> Garantes</a></li>
             </ul>
 
-            <p class="titulo-grupo" id="grupo-cobranza">Cobranza</p>
-            <ul class="nav flex-column" aria-labelledby="grupo-cobranza">
-                @if (puedeGestionar)
-                {
-                    <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Pagos" asp-action="Index" ga-seccion="Pagos"><i class="bi bi-cash-coin" aria-hidden="true"></i> Pagos</a></li>
-                }
-                <li class="nav-item"><a class="nav-link" asp-area="" asp-controller="Reportes" asp-action="Index" ga-seccion="Reportes"><i class="bi bi-bar-chart-line" aria-hidden="true"></i> Reportes</a></li>
-            </ul>
+            @* Pagos, Reportes, Ajustes de precio y Bandeja de mora no se muestran en el TFI: siguen como páginas
+               "en construcción" (SeccionesProvisoriasController) y la consigna pide un sistema 100% funcional. *@
 
             @if (esAdministrador)
             {
                 <p class="titulo-grupo" id="grupo-administracion">Administración</p>
                 <ul class="nav flex-column" aria-labelledby="grupo-administracion">
                     <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Contratos" asp-action="Index" ga-area="Administracion" ga-seccion="Contratos"><i class="bi bi-file-earmark-text" aria-hidden="true"></i> Contratos</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Ajustes" asp-action="Index" ga-area="Administracion" ga-seccion="Ajustes"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Ajustes de precio</a></li>
-                    <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Mora" asp-action="Index" ga-area="Administracion" ga-seccion="Mora"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Bandeja de mora</a></li>
                     <li class="nav-item"><a class="nav-link" asp-area="Administracion" asp-controller="Inicio" asp-action="Index" ga-area="Administracion" ga-seccion="@SeccionesConfiguracion.Controladores"><i class="bi bi-gear" aria-hidden="true"></i> Configuración</a></li>
                 </ul>
             }

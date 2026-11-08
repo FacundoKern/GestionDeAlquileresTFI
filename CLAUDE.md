@@ -312,5 +312,6 @@ Entrega: **viernes 13/11/2026**.
 - **Orden:** repositorio, despliegue temprano del estado actual, modales con SweetAlert2, contratos con PDF, IA con
   Gemini (chat de ayuda; el reporte con datos agregados es opcional) y README final. Se vuelve a desplegar al
   cerrar cada etapa.
-- **Hosting:** pendiente de confirmar. La recomendación es MonsterASP.NET (gratis y con SQL Server). Somee y
-  Railway quedaron descartados: Somee inserta publicidad que choca con la CSP, y Railway no ofrece SQL Server.
+- **Hosting: MonsterASP.NET** (confirmado el 2026-11-08). Es gratis, con SQL Server de 1 GB, 256 MB de RAM y
+  Windows/IIS. El sitio se duerme si nadie entra, así que hay que abrirlo antes de la defensa. Somee y Railway
+  quedaron descartados: Somee inserta publicidad que choca con la CSP, y Railway no ofrece SQL Server.
