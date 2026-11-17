@@ -29,6 +29,8 @@ public static class ServiciosExtensions
         services.AddScoped<IFotosPropiedadesService, FotosPropiedadesService>();
         services.AddScoped<IInquilinosService, InquilinosService>();
         services.AddScoped<IGarantesService, GarantesService>();
+        services.AddSingleton<IAlmacenDocumentos, AlmacenDocumentosEnDisco>();
+        services.AddScoped<IContratosService, ContratosService>();
         return services;
     }
 }

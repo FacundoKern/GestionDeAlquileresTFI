@@ -3,14 +3,19 @@
     ViewData["Title"] = Model.Direccion;
     ViewData.EstablecerMigas(new Miga("Propiedades", Url.Action("Index")!));
     var puedeGestionar = (await AuthorizationService.AuthorizeAsync(User, Politicas.Gestion)).Succeeded;
+    var esAdministrador = (await AuthorizationService.AuthorizeAsync(User, Politicas.Administracion)).Succeeded;
 }
 
 @section Acciones {
+    @if (esAdministrador && Model.Estado == EstadoPropiedad.Disponible)
+    {
+        <a asp-area="Administracion" asp-controller="Contratos" asp-action="Crear" asp-route-propiedadId="@Model.Id" class="btn btn-outline-primary"><i class="bi bi-file-earmark-plus" aria-hidden="true"></i> Nuevo contrato</a>
+    }
     @* TODO (junto con los PDF de fase 3): botón "Descargar ficha en PDF" (ver Views/Propietarios/Detalle.cshtml). *@
     @if (puedeGestionar)
     {
         <a asp-action="Editar" asp-route-id="@Model.Id" class="btn btn-primary"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
-        <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-trash" aria-hidden="true"></i> Eliminar</a>
+        <a asp-action="Eliminar" asp-route-id="@Model.Id" class="btn btn-outline-danger" data-abrir-en-modal><i class="bi bi-trash" aria-hidden="true"></i> Eliminar</a>
     }
 }
 

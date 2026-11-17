@@ -58,3 +58,18 @@ public class ContratoImpuestoConfiguration : IEntityTypeConfiguration<ContratoIm
         builder.HasQueryFilter(ci => !ci.Contrato.Eliminado && !ci.Impuesto.Eliminado);
     }
 }
+
+public class DocumentoContratoConfiguration : IEntityTypeConfiguration<DocumentoContrato>
+{
+    public void Configure(EntityTypeBuilder<DocumentoContrato> builder)
+    {
+        builder.ToTable("DocumentosContratos");
+        builder.Property(d => d.Archivo).HasMaxLength(64).IsRequired();
+        builder.Property(d => d.Descripcion).HasMaxLength(200).IsRequired();
+        builder.Property(d => d.NombreOriginal).HasMaxLength(255);
+
+        builder.HasOne(d => d.Contrato).WithMany(c => c.Documentos).HasForeignKey(d => d.ContratoId);
+
+        builder.HasIndex(d => d.Archivo).IsUnique();
+    }
+}

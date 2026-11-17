@@ -6,7 +6,7 @@
         new Miga(Model.Direccion, Url.Action("Detalle", "Propiedades", new { id = Model.PropiedadId }, null, null, "fotos")!));
 }
 
-<section class="card" aria-labelledby="titulo-confirmar">
+<section class="card" aria-labelledby="titulo-confirmar" data-contenido-modal>
     <div class="card-body">
         <h2 id="titulo-confirmar" class="h5 card-title">¿Eliminar esta foto?</h2>
         <img src="@Url.Action("Ver", new { id = Model.Id, miniatura = true })" alt="@(Model.Descripcion ?? "Foto a eliminar")"
@@ -16,7 +16,7 @@
         <form asp-action="Eliminar" asp-route-id="@Model.Id" method="post" class="d-flex flex-wrap gap-2">
             <input type="hidden" name="rowVersion" value="@Model.RowVersion" />
             <button type="submit" class="btn btn-danger"><i class="bi bi-trash" aria-hidden="true"></i> Sí, eliminar la foto</button>
-            <a asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@Model.PropiedadId" asp-fragment="fotos" class="btn btn-outline-secondary">Cancelar</a>
+            <a asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@Model.PropiedadId" asp-fragment="fotos" class="btn btn-outline-secondary" data-cerrar-modal>Cancelar</a>
         </form>
     </div>
 </section>

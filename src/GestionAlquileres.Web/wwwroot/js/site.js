@@ -85,6 +85,58 @@
         formulario.setAttribute('aria-busy', 'true');
     });
 
+    // Confirmaciones en un modal de Bootstrap (mejora progresiva). El enlace lleva a la página de confirmación;
+    // con JS se trae esa misma página por AJAX y se muestra su bloque [data-contenido-modal]. El formulario es
+    // el mismo (con su antiforgery y su RowVersion), así que el servidor valida igual. Ante cualquier problema
+    // (sesión vencida, error, sin fetch) se navega a la página como si no hubiera JS.
+    document.addEventListener('click', function (evento) {
+        var enlace = evento.target.closest('a[data-abrir-en-modal]');
+        var modal = document.getElementById('modal-confirmacion');
+        if (!enlace || !modal || !window.bootstrap || !window.fetch || !window.DOMParser) {
+            return;
+        }
+        if (evento.button !== 0 || evento.ctrlKey || evento.metaKey || evento.shiftKey || evento.altKey) {
+            return; // abrir en otra pestaña sigue funcionando
+        }
+        evento.preventDefault();
+        abrirEnModal(enlace, modal);
+    });
+
+    function abrirEnModal(enlace, modal) {
+        enlace.setAttribute('aria-busy', 'true');
+        fetch(enlace.href, { credentials: 'same-origin' })
+            .then(function (respuesta) {
+                if (!respuesta.ok || respuesta.redirected) {
+                    throw new Error('Sin confirmación');
+                }
+                return respuesta.text();
+            })
+            .then(function (html) {
+                var pagina = new DOMParser().parseFromString(html, 'text/html');
+                var contenido = pagina.querySelector('[data-contenido-modal]');
+                if (!contenido) {
+                    throw new Error('Sin confirmación');
+                }
+                var titulo = pagina.querySelector('h1');
+                modal.querySelector('.modal-title').textContent = titulo ? titulo.textContent.trim() : enlace.textContent.trim();
+                var cuerpo = modal.querySelector('.modal-body');
+                cuerpo.replaceChildren(document.importNode(contenido, true));
+                // "Cancelar" y "Volver" cierran el modal en lugar de navegar (Bootstrap evita la navegación).
+                cuerpo.querySelectorAll('[data-cerrar-modal]').forEach(function (cancelar) {
+                    cancelar.setAttribute('data-bs-dismiss', 'modal');
+                    cancelar.setAttribute('role', 'button');
+                });
+                modal.addEventListener('hidden.bs.modal', function () { enlace.focus(); }, { once: true });
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+            })
+            .catch(function () {
+                window.location.href = enlace.href;
+            })
+            .finally(function () {
+                enlace.removeAttribute('aria-busy');
+            });
+    }
+
     // Al volver con el botón "Atrás", el navegador puede restaurar la página con la marca puesta.
     window.addEventListener('pageshow', function () {
         document.querySelectorAll('form[data-enviando]').forEach(function (formulario) {

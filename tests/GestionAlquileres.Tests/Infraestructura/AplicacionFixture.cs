@@ -61,8 +61,12 @@ public sealed partial class AplicacionFixture : IAsyncLifetime
                 servicios.RemoveAll<DbContextOptions<AppDbContext>>();
                 servicios.AddDbContext<AppDbContext>(opciones => _base.Configurar(opciones));
 
-                // Las fotos que suben los tests van a una carpeta temporal, nunca a la de la aplicación.
+                // Las fotos y los PDF que suben los tests van a una carpeta temporal, nunca a la de la aplicación.
                 servicios.PostConfigure<FotosOptions>(opciones => opciones.Carpeta = CarpetaFotos);
+                servicios.PostConfigure<DocumentosOptions>(opciones => opciones.Carpeta = Path.Combine(CarpetaFotos, "documentos"));
+
+                // Los tests nunca llaman a la API real de Gemini, aunque haya una clave en User Secrets.
+                servicios.PostConfigure<GeminiOptions>(opciones => opciones.ClaveApi = null);
             });
         });
 

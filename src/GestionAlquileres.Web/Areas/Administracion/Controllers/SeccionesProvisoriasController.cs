@@ -5,24 +5,6 @@ namespace GestionAlquileres.Web.Areas.Administracion.Controllers;
 
 // Secciones de Administración que se implementan en fases siguientes. Ver CLAUDE.md, "Plan de fases".
 
-// TODO (fase 2): ABM de contratos.
-public class ContratosController : AdministracionControllerBase
-{
-    public IActionResult Index() => View("EnConstruccion", new EnConstruccionViewModel(
-        "Contratos",
-        "Alta, edición, renovación y rescisión de contratos.",
-        "fase 2",
-        [
-            "Alta con propiedad, inquilinos (titular y coinquilinos), garantes y tipo de garantía.",
-            "Configuración de ajuste (índice, porcentaje fijo o manual) y periodicidad.",
-            "Advertencia (sin bloquear) si un contrato en USD se ajusta por ICL.",
-            "Advertencia si el contrato no tiene garante (regla a confirmar con el cliente).",
-            "Ficha del contrato, solo para Administrador por ahora.",
-            "Rescisión con fecha y motivo; renovación como contrato nuevo vinculado al anterior.",
-            "Generación de cuotas mensuales.",
-        ]));
-}
-
 // TODO (fase 2): aplicar ajustes de precio.
 public class AjustesController : AdministracionControllerBase
 {

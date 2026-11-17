@@ -85,9 +85,39 @@
         </div>
     </div>
 
+    @{
+        // En la propia página del asistente no hace falta el botón flotante.
+        var mostrarAsistente = conMenu && !string.Equals(ViewContext.RouteData.Values["controller"] as string, "Asistente", StringComparison.OrdinalIgnoreCase);
+    }
+    @if (mostrarAsistente)
+    {
+        <partial name="_Asistente" />
+    }
+
+    @if (autenticado)
+    {
+        @* Modal de confirmación: site.js lo llena con la página de confirmación (enlaces con data-abrir-en-modal).
+           Sin JavaScript no se usa: el enlace lleva a esa misma página. *@
+        <div class="modal fade" id="modal-confirmacion" tabindex="-1" aria-labelledby="modal-confirmacion-titulo" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 class="modal-title h5" id="modal-confirmacion-titulo"></h2>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body"></div>
+                </div>
+            </div>
+        </div>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (mostrarAsistente)
+    {
+        <script src="~/js/asistente.js" asp-append-version="true"></script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

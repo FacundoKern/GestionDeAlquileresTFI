@@ -40,6 +40,8 @@ builder.Services.AgregarServiciosDeNegocio();
 builder.Services.Configure<EmpresaOptions>(builder.Configuration.GetSection(EmpresaOptions.Seccion));
 builder.Services.Configure<SemaforoOptions>(builder.Configuration.GetSection(SemaforoOptions.Seccion));
 builder.Services.Configure<FotosOptions>(builder.Configuration.GetSection(FotosOptions.Seccion));
+builder.Services.Configure<DocumentosOptions>(builder.Configuration.GetSection(DocumentosOptions.Seccion));
+builder.Services.AgregarAsistente(builder.Configuration);
 
 builder.Services.AddControllersWithViews(opciones =>
 {

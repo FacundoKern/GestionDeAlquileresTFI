@@ -540,6 +540,75 @@ namespace GestionAlquileres.Web.Data.Migrations
                     b.ToTable("DatosEmpresa", (string)null);
                 });
 
+            modelBuilder.Entity("GestionAlquileres.Web.Models.Entidades.DocumentoContrato", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Archivo")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<int>("ContratoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreadoEnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreadoPor")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("Eliminado")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("EliminadoEnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("EliminadoPor")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("ModificadoEnUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModificadoPor")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NombreOriginal")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<long>("TamanioBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Archivo")
+                        .IsUnique();
+
+                    b.HasIndex("ContratoId");
+
+                    b.ToTable("DocumentosContratos", (string)null);
+                });
+
             modelBuilder.Entity("GestionAlquileres.Web.Models.Entidades.FotoPropiedad", b =>
                 {
                     b.Property<int>("Id")
@@ -1882,6 +1951,17 @@ namespace GestionAlquileres.Web.Data.Migrations
                     b.Navigation("Contrato");
                 });
 
+            modelBuilder.Entity("GestionAlquileres.Web.Models.Entidades.DocumentoContrato", b =>
+                {
+                    b.HasOne("GestionAlquileres.Web.Models.Entidades.Contrato", "Contrato")
+                        .WithMany("Documentos")
+                        .HasForeignKey("ContratoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Contrato");
+                });
+
             modelBuilder.Entity("GestionAlquileres.Web.Models.Entidades.FotoPropiedad", b =>
                 {
                     b.HasOne("GestionAlquileres.Web.Models.Entidades.Propiedad", "Propiedad")
@@ -2085,6 +2165,8 @@ namespace GestionAlquileres.Web.Data.Migrations
                     b.Navigation("ConfiguracionAjuste");
 
                     b.Navigation("Cuotas");
+
+                    b.Navigation("Documentos");
 
                     b.Navigation("Garantes");
 

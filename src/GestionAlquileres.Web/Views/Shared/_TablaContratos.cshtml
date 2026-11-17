@@ -2,6 +2,8 @@
 @* Tabla de contratos para las fichas. ViewData["MostrarPropiedad"] = false oculta la columna Propiedad. *@
 @{
     var mostrarPropiedad = ViewData["MostrarPropiedad"] as bool? ?? true;
+    // La ficha del contrato es solo para Administrador (decisión del usuario).
+    var puedeVerFicha = (await AuthorizationService.AuthorizeAsync(User, Politicas.Administracion)).Succeeded;
 }
 
 <section class="card mb-4" aria-labelledby="titulo-contratos">
@@ -37,7 +39,16 @@
                                     <td><a asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@contrato.PropiedadId">@contrato.Propiedad</a></td>
                                 }
                                 <td>@contrato.Inquilinos</td>
-                                <td class="text-nowrap">@Formato.Fecha(contrato.FechaInicio) al @Formato.Fecha(contrato.FechaFin)</td>
+                                <td class="text-nowrap">
+                                    @if (puedeVerFicha)
+                                    {
+                                        <a asp-area="Administracion" asp-controller="Contratos" asp-action="Detalle" asp-route-id="@contrato.Id">@Formato.Fecha(contrato.FechaInicio) al @Formato.Fecha(contrato.FechaFin)<span class="visually-hidden"> (ver contrato)</span></a>
+                                    }
+                                    else
+                                    {
+                                        @Formato.Fecha(contrato.FechaInicio) <text>al</text> @Formato.Fecha(contrato.FechaFin)
+                                    }
+                                </td>
                                 <td class="text-end text-nowrap">@contrato.MontoActual</td>
                                 <td><partial name="_Semaforo" model="contrato.Estado" /></td>
                             </tr>

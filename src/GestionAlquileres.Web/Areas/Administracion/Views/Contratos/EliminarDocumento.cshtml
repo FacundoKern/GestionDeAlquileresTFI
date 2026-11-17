@@ -1,0 +1,21 @@
+@model GestionAlquileres.Web.ViewModels.Contratos.EliminarDocumentoViewModel
+@{
+    ViewData["Title"] = "Eliminar documento";
+    ViewData.EstablecerMigas(
+        new Miga("Contratos", Url.Action("Index")!),
+        new Miga(Model.Propiedad, Url.Action("Detalle", new { id = Model.ContratoId })!));
+}
+
+@* Con JavaScript, site.js muestra el bloque [data-contenido-modal] en un modal en lugar de navegar a esta página. *@
+<div class="card" data-contenido-modal>
+    <div class="card-body">
+        <p class="fs-5">¿Querés eliminar el documento <strong>@Model.Descripcion</strong>?</p>
+        <p>Deja de aparecer en la ficha del contrato. El registro de quién lo eliminó queda en la auditoría.</p>
+
+        <form asp-action="EliminarDocumento" asp-route-id="@Model.Id" method="post" class="d-flex flex-wrap gap-2">
+            <input type="hidden" name="rowVersion" value="@Model.RowVersion" />
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash" aria-hidden="true"></i> Sí, eliminar el documento</button>
+            <a asp-action="Detalle" asp-route-id="@Model.ContratoId" asp-fragment="documentos" class="btn btn-outline-secondary" data-cerrar-modal>Cancelar</a>
+        </form>
+    </div>
+</div>

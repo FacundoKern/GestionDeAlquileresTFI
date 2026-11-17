@@ -1,0 +1,27 @@
+@*
+    Botón flotante del asistente. Sin JavaScript es un enlace a la página del asistente; con JavaScript abre este
+    panel (offcanvas de Bootstrap: foco atrapado y cierre con Escape) y asistente.js manda las preguntas por AJAX.
+*@
+<a asp-area="" asp-controller="Asistente" asp-action="Index" class="btn btn-primary asistente-boton"
+   data-bs-toggle="offcanvas" data-bs-target="#panel-asistente" aria-controls="panel-asistente">
+    <i class="bi bi-chat-dots" aria-hidden="true"></i> Asistente
+</a>
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="panel-asistente" aria-labelledby="titulo-panel-asistente">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5" id="titulo-panel-asistente"><i class="bi bi-chat-dots" aria-hidden="true"></i> Asistente</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar el asistente"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column gap-3">
+        <p class="small text-body-secondary mb-0">
+            Respondo dudas sobre cómo usar el sistema. Las respuestas las genera una IA (Google Gemini) y pueden tener errores.
+            No escribas datos personales.
+        </p>
+        <div class="asistente-mensajes flex-grow-1" aria-live="polite" data-asistente-mensajes></div>
+        <form asp-area="" asp-controller="Asistente" asp-action="Preguntar" method="post" data-asistente-formulario>
+            <label for="pregunta-asistente" class="form-label">Tu pregunta</label>
+            <textarea id="pregunta-asistente" name="pregunta" class="form-control mb-2" rows="3" maxlength="500" required></textarea>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-send" aria-hidden="true"></i> Preguntar</button>
+        </form>
+    </div>
+</div>

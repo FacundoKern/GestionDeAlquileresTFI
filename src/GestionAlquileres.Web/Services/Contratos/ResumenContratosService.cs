@@ -15,6 +15,9 @@ public interface IResumenContratosService
 {
     /// <summary>Contratos que cumplen el filtro, con su semáforo calculado a hoy. Vigentes primero.</summary>
     Task<IReadOnlyList<ContratoResumenViewModel>> ObtenerAsync(Expression<Func<Contrato, bool>> filtro, CancellationToken ct = default);
+
+    /// <summary>Igual que <see cref="ObtenerAsync"/>, para filtros que se arman de a partes (el listado de contratos).</summary>
+    Task<IReadOnlyList<ContratoResumenViewModel>> FiltrarAsync(Func<IQueryable<Contrato>, IQueryable<Contrato>> filtrar, CancellationToken ct = default);
 }
 
 public sealed class ResumenContratosService : IResumenContratosService
@@ -30,14 +33,18 @@ public sealed class ResumenContratosService : IResumenContratosService
         _opciones = opciones.Value;
     }
 
-    public async Task<IReadOnlyList<ContratoResumenViewModel>> ObtenerAsync(
+    public Task<IReadOnlyList<ContratoResumenViewModel>> ObtenerAsync(
         Expression<Func<Contrato, bool>> filtro,
+        CancellationToken ct = default) =>
+        FiltrarAsync(consulta => consulta.Where(filtro), ct);
+
+    public async Task<IReadOnlyList<ContratoResumenViewModel>> FiltrarAsync(
+        Func<IQueryable<Contrato>, IQueryable<Contrato>> filtrar,
         CancellationToken ct = default)
     {
         var hoy = _reloj.HoyEnArgentina();
 
-        var contratos = await _db.Contratos.AsNoTracking()
-            .Where(filtro)
+        var contratos = await filtrar(_db.Contratos.AsNoTracking())
             .Select(c => new
             {
                 c.Id,

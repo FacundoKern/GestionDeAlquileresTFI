@@ -154,7 +154,7 @@ Un solo proyecto MVC con capas por carpeta (ver la estructura en el README):
 
 ## Tests
 
-`tests/GestionAlquileres.Tests` tiene 149 tests: 142 pasan y 7 están omitidos a propósito.
+`tests/GestionAlquileres.Tests` tiene 171 tests: 164 pasan y 7 están omitidos a propósito.
 
 | Carpeta | Qué prueba |
 |---|---|
@@ -264,32 +264,37 @@ Así los dos sistemas pueden estar abiertos a la vez sin pisarse.
 | Identity con 2 roles o más | Hecho (Administrador, Operador y Consulta) |
 | 7 tablas o más, sin contar las de Identity | Hecho |
 | Validación en el servidor y en el cliente (jQuery Unobtrusive) | Hecho: todos los formularios de alta y edición cargan `_ValidationScriptsPartial` |
-| Adjuntos: imágenes y PDF | Las imágenes están hechas (fotos de propiedades). **Falta adjuntar un PDF**: va a ser el contrato firmado, en el ABM mínimo de contratos |
-| Modales interactivos (Bootstrap, AJAX o SweetAlert2) | **Falta.** Ver "Cómo sumarlo sin romper las reglas" |
+| Adjuntos: imágenes y PDF | Hecho: fotos de propiedades y PDF adjuntos a los contratos (`DocumentoContrato`) |
+| Modales interactivos (Bootstrap, AJAX o SweetAlert2) | Hecho: confirmaciones de eliminar en un modal de Bootstrap cargado por AJAX (`data-abrir-en-modal`) |
 | Layout con Bootstrap 5, responsivo | Hecho |
 | Auditoría de quién hizo cada operación | Hecho |
-| Módulo de IA (chatbot o generación y análisis de contenido) | **Falta** |
-| Repositorio de GitHub con README | El README está. Falta crear el repositorio y sumarle la URL y cómo probar el sistema |
-| URL pública con el sistema desplegado | **Falta** |
-| Credenciales de prueba de un Administrador y de un Cliente | El "Cliente" es el rol **Consulta**. Faltan los usuarios de demostración en producción |
-| Mensajes claros y en español (Identity, SweetAlert2, ABM) | Identity hecho (`IdentityErrorDescriberEspanol`). Falta SweetAlert2 |
+| Módulo de IA (chatbot o generación y análisis de contenido) | Hecho: asistente flotante con Gemini (`AsistenteController`, `AsistenteService`) |
+| Repositorio de GitHub con README | Hecho: github.com/FacundoKern/GestionDeAlquileresTFI, con la URL y qué probar |
+| URL pública con el sistema desplegado | Hecho: https://gestionalquileres.runasp.net |
+| Credenciales de prueba de un Administrador y de un Cliente | Hecho: usuarios de demostración en MonsterASP; el "Cliente" es el rol **Consulta** |
+| Mensajes claros y en español (Identity, SweetAlert2, ABM) | Hecho: Identity (`IdentityErrorDescriberEspanol`), modales, ABM y asistente |
 
 ### Cómo sumarlo sin romper las reglas
 
-- **Modales:** como mejora progresiva. El enlace o el formulario sigue funcionando sin JavaScript, y con
-  JavaScript abre el modal. SweetAlert2 va en `wwwroot/lib` con su CSS aparte, porque la CSP no permite estilos
-  inline. Hay que usar el build sin estilos embebidos.
-- **IA:** la consigna sugiere Gemini, con la clave en User Secrets en desarrollo y en variables de entorno en
-  producción.
-  - **No mandar datos personales a la API** (Ley 25.326): solo preguntas sobre el uso del sistema o datos
-    agregados y anónimos.
-  - Ponerle un límite de pedidos por usuario.
-  - Mostrar un mensaje claro si la API no responde.
+- **Modales** (hechos el 2026-11-17): mejora progresiva con el modal de Bootstrap, que ya estaba cargado, en vez de
+  SweetAlert2 (una dependencia menos y sin problemas con la CSP). El enlace "Eliminar" lleva a la página de
+  confirmación; con JavaScript, `site.js` la trae por AJAX y muestra su bloque `[data-contenido-modal]` en
+  `#modal-confirmacion` (está en el layout). Los "Cancelar" llevan `data-cerrar-modal`.
+- **IA** (hecha el 2026-11-17): asistente de ayuda sobre el uso del sistema, con la API REST de Gemini y
+  `HttpClient`. Clave en `Gemini:ClaveApi` (User Secrets o `Gemini__ClaveApi`); el modelo es configurable
+  (`Gemini:Modelo`), porque Google retiró Gemini 2.5 Flash en 2026.
+  - **No manda datos personales** (Ley 25.326): `FiltroDatosPersonales` frena las preguntas con documentos,
+    teléfonos o emails, y la guía (`GuiaDelSistema`) no lleva datos de la base. Ni la pregunta ni la respuesta van a
+    los logs.
+  - Límite de 5 consultas por minuto por usuario (`PoliticaRateLimitAsistente`) y mensajes claros si la API falla.
+  - Botón flotante (`_Asistente`, offcanvas + `asistente.js` por AJAX); sin JavaScript, la página `/Asistente`.
+  - Si cambia una pantalla, actualizar `GuiaDelSistema`.
 - **Despliegue** (MonsterASP, decidido el 2026-11-17; variables en la sección "Despliegue" del README):
   - en la demo, las migraciones se aplican solas, se cargan los datos ficticios y los usuarios de prueba no
     tienen que cambiar la contraseña (`Seed:ExigirCambioDeClave`);
-  - las fotos y las claves de Data Protection (`DataProtection:Carpeta`) van en la carpeta `private` del sitio,
-    que los despliegues no tocan;
+  - las fotos, los PDF (`Documentos:Carpeta`) y las claves de Data Protection (`DataProtection:Carpeta`) van en la
+    carpeta `private` del sitio, que los despliegues no tocan;
+  - se publica subiendo un ZIP (`dotnet publish -c Release`) desde el administrador de archivos del panel;
   - HTTPS lo activa el soporte de MonsterASP con un ticket.
 - **Credenciales de prueba:** se entregan con el trabajo, no en el repositorio público. Los usuarios de
   demostración trabajan sobre datos ficticios.
@@ -301,15 +306,17 @@ Así los dos sistemas pueden estar abiertos a la vez sin pisarse.
 |---|---|---|
 | 1 | Propuesta, DER preliminar y roles | El DER está en `docs/diagrama-entidad-relacion.md` |
 | 2 | Base con EF Core, Identity y los ABM principales | Cumplido con la fase 1 |
-| 3 | Repositorio con README, URL pública y credenciales de prueba | Pendiente |
-| 4 | Sistema terminado con IA y defensa de 15 minutos: demo por rol, explicación del código y preguntas | Pendiente |
+| 3 | Repositorio con README, URL pública y credenciales de prueba | Hecho (la fecha se corrió; entrega el 2026-11-17) |
+| 4 | Sistema terminado con IA y defensa de 15 minutos: demo por rol, explicación del código y preguntas | Sistema terminado; falta la defensa |
 
 ### Plan acordado (2026-11-07)
 
 Entrega: **viernes 13/11/2026**.
 
-- **ABM mínimo de contratos** (alta, listado, ficha, rescisión y adjuntar el contrato firmado en PDF), sin ajustes
-  ni cuotas. Reemplaza la página provisoria de Contratos y cubre el requisito del PDF.
+- **ABM mínimo de contratos** (hecho el 2026-11-17: alta, listado, ficha, rescisión y PDF adjuntos), sin ajustes
+  ni cuotas, en `Areas/Administracion/Controllers/ContratosController.cs` y `ContratosService`. No hay edición:
+  un contrato mal cargado se rescinde. Los PDF se validan por su firma (`ValidadorPdf`) y se descargan siempre como
+  adjunto.
 - **Páginas "en construcción":** salen del menú para la demo, porque la consigna pide un sistema 100% funcional.
   El código queda.
 - **Orden:** repositorio, despliegue temprano del estado actual, modales con SweetAlert2, contratos con PDF, IA con

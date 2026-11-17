@@ -7,10 +7,41 @@ inquilinos, garantes, contratos, ajustes de precio, cobranzas, mora y reportes.
 - Accesible (WCAG 2.1 AA): se puede usar con teclado y lector de pantalla, y los estados no dependen solo del color.
 - Tres roles: **Administrador**, **Operador** y **Consulta**.
 
-> Estado: **fase 1 terminada** (base del sistema, ABM de personas y propiedades, usuarios y auditoría).
-> Ver el plan completo en [CLAUDE.md](CLAUDE.md#plan-de-fases).
->
 > Trabajo Final Integrador de la materia **Programación Web**. Los datos que trae la aplicación son ficticios.
+> Ver el plan completo en [CLAUDE.md](CLAUDE.md#plan-de-fases).
+
+## Demo en línea
+
+**https://gestionalquileres.runasp.net** (MonsterASP.NET, plan gratis: la primera carga puede tardar unos
+segundos si el sitio estaba dormido).
+
+Las credenciales de prueba (un Administrador y un usuario Consulta, que hace de "Cliente") se entregan junto
+con el trabajo: no están en este repositorio público.
+
+**Qué probar:**
+
+| Con el rol | Recorrido |
+|---|---|
+| Administrador | Inicio (tablero) → Propiedades → una ficha con fotos → **Contratos → Nuevo contrato** → en la ficha del contrato, **adjuntar el contrato firmado en PDF** y descargarlo → Configuración → **Auditoría** (quién hizo cada cambio) |
+| Consulta | Inquilinos y Propietarios: documento, teléfono y email **parcialmente ocultos** (se ocultan en el servidor); no ve contratos ni puede crear ni editar |
+| Cualquiera | El botón **Asistente** (abajo a la derecha): preguntas sobre cómo usar el sistema, respondidas con IA |
+
+## Qué incluye
+
+- **ABM** de propietarios, propiedades (con copropietarios y fotos), inquilinos y garantes, con validación en el
+  servidor y en el cliente (jQuery Unobtrusive), búsqueda sin acentos y paginación.
+- **Contratos** (Administrador): alta con titular, coinquilinos, garante y tipo de ajuste; ficha con el historial
+  del monto; rescisión; **PDF adjuntos** (se validan por su contenido y se guardan fuera de `wwwroot`).
+- **Fotos** de propiedades: se procesan con SkiaSharp (sin metadatos GPS, orientadas y con miniatura).
+- **Modales de confirmación** (Bootstrap + AJAX): eliminar abre la confirmación en un modal; sin JavaScript,
+  el mismo enlace lleva a una página de confirmación.
+- **Asistente con IA** (Google Gemini): chat flotante que responde cómo usar el sistema. No envía datos
+  personales (filtra documentos, teléfonos y emails antes de llamar a la API), tiene un límite de consultas por
+  usuario y avisa con un mensaje claro si la API no responde.
+- **Seguridad:** Identity con 3 roles y políticas en el servidor, antiforgery en todos los POST, CSP sin código
+  inline, cookies `__Host-`, bloqueo por intentos fallidos y límite de intentos por IP.
+- **Auditoría** automática de cada cambio (antes/después), de los inicios de sesión y de la apertura de fichas con
+  datos personales. Nada se borra físicamente.
 
 ## Tecnologías
 
@@ -21,6 +52,7 @@ inquilinos, garantes, contratos, ajustes de precio, cobranzas, mora y reportes.
 | Usuarios | ASP.NET Core Identity |
 | Pantallas | Razor + Bootstrap 5.3 + Bootstrap Icons (JavaScript mínimo) |
 | Fotos | SkiaSharp (validación, orientación, sin metadatos, miniaturas) |
+| IA | API REST de Google Gemini con `HttpClient` (sin SDK) |
 | PDF / Excel | QuestPDF / ClosedXML (desde las fases 3 y 5) |
 | Tests | xUnit + WebApplicationFactory |
 
@@ -53,6 +85,13 @@ dotnet user-secrets set "Seed:Usuarios:Consulta:Clave" 'TerceraClave#2026' --pro
 
 Las contraseñas necesitan 12 caracteres o más, con mayúsculas, minúsculas, números y algún símbolo.
 Para revisar lo que quedó guardado: `dotnet user-secrets list --project src/GestionAlquileres.Web`.
+
+**Opcional: el asistente con IA.** Creá una clave gratis en [Google AI Studio](https://aistudio.google.com/apikey)
+y guardala también como secreto. Sin clave, el sistema funciona igual y el asistente avisa que no está configurado.
+
+```powershell
+dotnet user-secrets set "Gemini:ClaveApi" 'tu-clave' --project src/GestionAlquileres.Web
+```
 
 **3. Ejecutar.** Desde Visual Studio, con **F5** (perfil `https`). Desde la terminal:
 
@@ -137,11 +176,14 @@ en **variables de entorno** del panel (*Scripting → Environment variables*), n
 | `Seed__Usuarios__<Rol>__Clave` | La contraseña inicial de cada rol |
 | `Fotos__Carpeta` | `../private/fotos`: fuera de `wwwroot` y fuera del alcance de los despliegues |
 | `DataProtection__Carpeta` | `../private/keys`: las claves de las cookies sobreviven a los reinicios |
+| `Documentos__Carpeta` | `../private/documentos`: los PDF de los contratos |
+| `Gemini__ClaveApi` | La clave de Google AI Studio para el asistente |
+| `Gemini__Modelo` | Opcional: otro modelo de Gemini si Google retira el configurado en `appsettings.json` |
 
 - **HTTPS es obligatorio** (las cookies son `__Host-` y `Secure`). En el plan gratis lo activa el soporte de
   MonsterASP con un ticket, después de publicar por primera vez.
 - `web.config` sube el límite de pedido de IIS a 120 MB para la subida de fotos.
-- Las **fotos** se guardan en disco, no en la base: **tienen que entrar en los backups**, junto con la base.
+- Las **fotos** y los **PDF** se guardan en disco, no en la base: **tienen que entrar en los backups**, junto con la base.
 - Fuera del TFI (un sistema real), lo correcto es `Seed__DatosDePrueba=false`, que los usuarios iniciales
   cambien la contraseña en su primer ingreso y aplicar las migraciones con un script revisado.
 

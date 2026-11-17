@@ -34,6 +34,7 @@ public class AppDbContext : IdentityDbContext<Usuario>
     public DbSet<ContratoInquilino> ContratosInquilinos => Set<ContratoInquilino>();
     public DbSet<ContratoGarante> ContratosGarantes => Set<ContratoGarante>();
     public DbSet<ContratoImpuesto> ContratosImpuestos => Set<ContratoImpuesto>();
+    public DbSet<DocumentoContrato> DocumentosContratos => Set<DocumentoContrato>();
     public DbSet<ConfiguracionAjuste> ConfiguracionesAjuste => Set<ConfiguracionAjuste>();
     public DbSet<Indice> Indices => Set<Indice>();
     public DbSet<IndiceValor> IndicesValores => Set<IndiceValor>();

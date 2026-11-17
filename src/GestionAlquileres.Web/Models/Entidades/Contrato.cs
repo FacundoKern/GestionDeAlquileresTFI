@@ -58,6 +58,8 @@ public class Contrato : EntidadNegocio
 
     public ICollection<ContratoImpuesto> Impuestos { get; set; } = new List<ContratoImpuesto>();
 
+    public ICollection<DocumentoContrato> Documentos { get; set; } = new List<DocumentoContrato>();
+
     /// <summary>Fija el monto inicial y registra la primera entrada del historial.</summary>
     public HistorialMonto EstablecerMontoInicial(decimal monto, string usuario, DateTime ahoraUtc)
     {

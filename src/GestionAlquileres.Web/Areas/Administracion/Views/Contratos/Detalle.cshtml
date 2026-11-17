@@ -1,0 +1,209 @@
+@model GestionAlquileres.Web.ViewModels.Contratos.ContratoDetalleViewModel
+@{
+    ViewData["Title"] = $"Contrato de {Model.Propiedad}";
+    ViewData.EstablecerMigas(new Miga("Contratos", Url.Action("Index")!));
+}
+
+@section Acciones {
+    @if (Model.PuedeRescindirse)
+    {
+        <a asp-action="Rescindir" asp-route-id="@Model.Id" class="btn btn-outline-danger"><i class="bi bi-x-circle" aria-hidden="true"></i> Rescindir</a>
+    }
+}
+
+@if (Model.Advertencia is { } advertencia)
+{
+    <div class="alert alert-warning" role="status">
+        <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> @advertencia
+    </div>
+}
+
+<section class="card mb-4" aria-labelledby="titulo-datos">
+    <div class="card-body">
+        <h2 id="titulo-datos" class="h5 card-title">Datos del contrato</h2>
+        <dl class="ficha row mb-0">
+            <dt class="col-sm-4 col-lg-3">Estado</dt>
+            <dd class="col-sm-8 col-lg-9"><partial name="_Semaforo" model="Model.Estado" /></dd>
+
+            <dt class="col-sm-4 col-lg-3">Propiedad</dt>
+            <dd class="col-sm-8 col-lg-9"><a asp-area="" asp-controller="Propiedades" asp-action="Detalle" asp-route-id="@Model.PropiedadId">@Model.Propiedad</a></dd>
+
+            <dt class="col-sm-4 col-lg-3">Vigencia</dt>
+            <dd class="col-sm-8 col-lg-9">@Formato.Fecha(Model.FechaInicio) al @Formato.Fecha(Model.FechaFin)</dd>
+
+            @if (Model.FechaRescision is { } rescision)
+            {
+                <dt class="col-sm-4 col-lg-3">Rescindido el</dt>
+                <dd class="col-sm-8 col-lg-9">@Formato.Fecha(rescision)</dd>
+
+                <dt class="col-sm-4 col-lg-3">Motivo de la rescisión</dt>
+                <dd class="col-sm-8 col-lg-9 texto-multilinea">@Model.MotivoRescision</dd>
+            }
+
+            <dt class="col-sm-4 col-lg-3">Moneda</dt>
+            <dd class="col-sm-8 col-lg-9">@Model.Moneda.Nombre()</dd>
+
+            <dt class="col-sm-4 col-lg-3">Monto actual</dt>
+            <dd class="col-sm-8 col-lg-9">@Model.MontoActual <span class="text-body-secondary">(inicial: @Model.MontoInicial)</span></dd>
+
+            <dt class="col-sm-4 col-lg-3">Vencimiento del pago</dt>
+            <dd class="col-sm-8 col-lg-9">El día @Model.DiaVencimiento de cada mes</dd>
+
+            <dt class="col-sm-4 col-lg-3">Depósito en garantía</dt>
+            <dd class="col-sm-8 col-lg-9">@(Model.DepositoGarantia ?? "Sin depósito")</dd>
+
+            <dt class="col-sm-4 col-lg-3">Ajuste</dt>
+            <dd class="col-sm-8 col-lg-9">
+                @Model.Ajuste
+                @if (Model.ProximoAjuste is { } proximo && Model.PuedeRescindirse)
+                {
+                    <span class="text-body-secondary">(próximo: @Formato.Fecha(proximo))</span>
+                }
+            </dd>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Observaciones))
+            {
+                <dt class="col-sm-4 col-lg-3">Observaciones</dt>
+                <dd class="col-sm-8 col-lg-9 texto-multilinea">@Model.Observaciones</dd>
+            }
+        </dl>
+    </div>
+</section>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <section class="card h-100" aria-labelledby="titulo-inquilinos">
+            <div class="card-body">
+                <h2 id="titulo-inquilinos" class="h5 card-title">Inquilinos</h2>
+                <ul class="list-unstyled mb-0">
+                    @foreach (var inquilino in Model.Inquilinos)
+                    {
+                        <li class="mb-2">
+                            <a asp-area="" asp-controller="Inquilinos" asp-action="Detalle" asp-route-id="@inquilino.Id">@inquilino.Nombre</a>
+                            <span class="text-body-secondary">— @inquilino.Documento, @inquilino.Rol</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-6">
+        <section class="card h-100" aria-labelledby="titulo-garantes">
+            <div class="card-body">
+                <h2 id="titulo-garantes" class="h5 card-title">Garantes</h2>
+                @if (Model.Garantes.Count == 0)
+                {
+                    <p class="mb-0">El contrato no tiene garante.</p>
+                }
+                else
+                {
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var garante in Model.Garantes)
+                        {
+                            <li class="mb-2">
+                                <a asp-area="" asp-controller="Garantes" asp-action="Detalle" asp-route-id="@garante.Id">@garante.Nombre</a>
+                                <span class="text-body-secondary">— @garante.Documento, @garante.Rol</span>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+<section class="card mb-4" aria-labelledby="titulo-historial">
+    <div class="card-body">
+        <h2 id="titulo-historial" class="h5 card-title">Historial del monto</h2>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <caption class="visually-hidden">Montos del contrato, del más antiguo al más reciente</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">Desde</th>
+                        <th scope="col" class="text-end">Monto anterior</th>
+                        <th scope="col" class="text-end">Monto nuevo</th>
+                        <th scope="col">Motivo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var h in Model.Historial)
+                    {
+                        <tr>
+                            <td class="text-nowrap">@Formato.Fecha(h.FechaVigencia)</td>
+                            <td class="text-end text-nowrap">@h.MontoAnterior</td>
+                            <td class="text-end text-nowrap">@h.MontoNuevo</td>
+                            <td>@h.Motivo</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="card mb-4" id="documentos" aria-labelledby="titulo-documentos" tabindex="-1">
+    <div class="card-body">
+        <h2 id="titulo-documentos" class="h5 card-title">Documentos (PDF)</h2>
+        @if (Model.Documentos.Count == 0)
+        {
+            <p>Todavía no hay documentos adjuntos. Podés subir el contrato firmado escaneado.</p>
+        }
+        else
+        {
+            <div class="table-responsive mb-3">
+                <table class="table align-middle mb-0">
+                    <caption class="visually-hidden">Documentos adjuntos al contrato</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Documento</th>
+                            <th scope="col">Tamaño</th>
+                            <th scope="col">Subido</th>
+                            <th scope="col"><span class="visually-hidden">Acciones</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.Documentos)
+                        {
+                            <tr>
+                                <th scope="row" class="fw-normal">
+                                    @d.Descripcion
+                                    @if (!string.IsNullOrEmpty(d.NombreOriginal))
+                                    {
+                                        <span class="d-block small text-body-secondary">@d.NombreOriginal</span>
+                                    }
+                                </th>
+                                <td class="text-nowrap">@d.Tamanio</td>
+                                <td>@d.SubidoPor, @Formato.FechaHora(d.SubidoEnUtc)</td>
+                                <td class="text-end text-nowrap">
+                                    <a asp-action="Documento" asp-route-id="@d.Id" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-download" aria-hidden="true"></i> Descargar<span class="visually-hidden"> @d.Descripcion</span>
+                                    </a>
+                                    <a asp-action="EliminarDocumento" asp-route-id="@d.Id" class="btn btn-outline-danger btn-sm" data-abrir-en-modal>
+                                        <i class="bi bi-trash" aria-hidden="true"></i> Eliminar<span class="visually-hidden"> @d.Descripcion</span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <form asp-action="SubirDocumento" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label for="archivo" class="form-label">Archivo PDF <span class="texto-obligatorio">(obligatorio)</span></label>
+                <input id="archivo" name="archivo" type="file" accept=".pdf,application/pdf" class="form-control" required aria-describedby="ayuda-archivo" />
+                <div id="ayuda-archivo" class="form-text">Solo PDF, hasta @Model.TamanioMaximoDocumentoMB MB.</div>
+            </div>
+            <div class="col-md-4">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <input id="descripcion" name="descripcion" class="form-control" maxlength="200" placeholder="Contrato firmado" aria-describedby="ayuda-descripcion" />
+                <div id="ayuda-descripcion" class="form-text">Si la dejás vacía, se guarda como "Contrato firmado".</div>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-upload" aria-hidden="true"></i> Adjuntar PDF</button>
+            </div>
+        </form>
+    </div>
+</section>

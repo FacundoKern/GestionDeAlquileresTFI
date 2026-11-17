@@ -1,0 +1,81 @@
+@model GestionAlquileres.Web.ViewModels.Contratos.ContratosIndexViewModel
+@{
+    ViewData["Title"] = "Contratos";
+    var filtro = Model.Filtro;
+    var hayFiltros = !string.IsNullOrWhiteSpace(filtro.Texto) || filtro.Estado is not null;
+}
+
+@section Acciones {
+    <a asp-action="Crear" class="btn btn-primary"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo contrato</a>
+}
+
+<section class="card mb-4" aria-labelledby="titulo-busqueda">
+    <div class="card-body">
+        <h2 id="titulo-busqueda" class="h6 card-title">Buscar</h2>
+        <form asp-action="Index" method="get" role="search" class="row g-3 align-items-end">
+            <div class="col-md-6 col-xl-5">
+                <label for="Texto" class="form-label">Dirección o inquilino</label>
+                <input id="Texto" name="Texto" value="@filtro.Texto" class="form-control" type="search" />
+            </div>
+            <div class="col-md-3 col-xl-3">
+                <label for="Estado" class="form-label">Estado</label>
+                <select id="Estado" name="Estado" class="form-select">
+                    <option value="">Todos</option>
+                    @foreach (var estado in Enum.GetValues<EstadoContrato>())
+                    {
+                        <option value="@estado" selected="@(filtro.Estado == estado)">@estado.Nombre()</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 col-xl-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+                @if (hayFiltros)
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                }
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="card" aria-labelledby="titulo-resultados">
+    <div class="card-body">
+        <h2 id="titulo-resultados" class="h6 card-title">@(hayFiltros ? "Resultados de la búsqueda" : "Todos los contratos")</h2>
+
+        @if (Model.Resultados.TotalRegistros == 0)
+        {
+            <p class="mb-0">@(hayFiltros ? "No se encontraron contratos con esos filtros." : "Todavía no hay contratos cargados.")</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <caption class="visually-hidden">Listado de contratos, vigentes primero</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">Propiedad</th>
+                            <th scope="col">Inquilinos</th>
+                            <th scope="col">Vigencia</th>
+                            <th scope="col" class="text-end">Monto actual</th>
+                            <th scope="col">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var c in Model.Resultados.Items)
+                        {
+                            <tr>
+                                <th scope="row" class="fw-normal"><a asp-action="Detalle" asp-route-id="@c.Id">@c.Propiedad</a></th>
+                                <td>@c.Inquilinos</td>
+                                <td class="text-nowrap">@Formato.Fecha(c.FechaInicio) al @Formato.Fecha(c.FechaFin)</td>
+                                <td class="text-end text-nowrap">@c.MontoActual</td>
+                                <td><partial name="_Semaforo" model="c.Estado" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <partial name="_Paginacion" model="@(new PaginacionViewModel(Model.Resultados.Pagina, Model.Resultados.TotalPaginas, Model.Resultados.TotalRegistros, new Dictionary<string, string?> { ["Texto"] = filtro.Texto, ["Estado"] = filtro.Estado?.ToString() }))" />
+        }
+    </div>
+</section>

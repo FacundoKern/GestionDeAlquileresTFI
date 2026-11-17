@@ -1,0 +1,43 @@
+@model GestionAlquileres.Web.ViewModels.Asistente.AsistenteViewModel
+@{
+    ViewData["Title"] = "Asistente";
+}
+
+<section class="card mb-4" aria-labelledby="titulo-asistente-pagina">
+    <div class="card-body">
+        <h2 id="titulo-asistente-pagina" class="h5 card-title">Preguntá cómo usar el sistema</h2>
+        <p>
+            El asistente responde dudas sobre el uso del sistema, por ejemplo "¿cómo adjunto el contrato firmado?" o
+            "¿qué puede hacer el rol Consulta?". No tiene acceso a los datos cargados.
+        </p>
+        <p class="small text-body-secondary">
+            <i class="bi bi-stars" aria-hidden="true"></i> Las respuestas las genera una IA (Google Gemini) y pueden tener errores.
+            <strong>No escribas datos personales</strong> (documentos, teléfonos ni emails): si aparecen, la pregunta no se envía.
+        </p>
+
+        <form asp-action="Preguntar" method="post">
+            <label for="pregunta" class="form-label">Tu pregunta <span class="texto-obligatorio">(obligatorio)</span></label>
+            <textarea id="pregunta" name="pregunta" class="form-control mb-3" rows="3" maxlength="500" required>@Model.Pregunta</textarea>
+            <button type="submit" class="btn btn-primary"><i class="bi bi-send" aria-hidden="true"></i> Preguntar</button>
+        </form>
+    </div>
+</section>
+
+@if (Model.Respuesta is { } respuesta)
+{
+    <section class="card" aria-labelledby="titulo-respuesta" role="status">
+        <div class="card-body">
+            <h2 id="titulo-respuesta" class="h5 card-title">Respuesta</h2>
+            @if (respuesta.Exito)
+            {
+                <p class="texto-multilinea mb-0">@respuesta.Texto</p>
+            }
+            else
+            {
+                <div class="alert alert-warning mb-0">
+                    <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> @respuesta.Texto
+                </div>
+            }
+        </div>
+    </section>
+}

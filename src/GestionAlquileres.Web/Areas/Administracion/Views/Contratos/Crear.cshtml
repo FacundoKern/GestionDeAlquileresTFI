@@ -1,0 +1,146 @@
+@model GestionAlquileres.Web.ViewModels.Contratos.ContratoFormViewModel
+@{
+    ViewData["Title"] = "Nuevo contrato";
+    ViewData.EstablecerMigas(new Miga("Contratos", Url.Action("Index")!));
+}
+
+<partial name="_ResumenErrores" />
+
+<form asp-action="Crear" method="post" novalidate class="card">
+    <div class="card-body">
+        <fieldset class="mb-4">
+            <legend class="h5">Propiedad e inquilinos</legend>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="PropiedadId" class="form-label"></label>
+                    <select asp-for="PropiedadId" asp-items="Model.OpcionesPropiedades" class="form-select" aria-describedby="ayuda-propiedad">
+                        <option value="">Elegí una propiedad</option>
+                    </select>
+                    <div id="ayuda-propiedad" class="form-text">Solo aparecen las propiedades activas que no tienen un contrato vigente.</div>
+                    <span asp-validation-for="PropiedadId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="InquilinoTitularId" class="form-label"></label>
+                    <select asp-for="InquilinoTitularId" asp-items="Model.OpcionesInquilinos" class="form-select">
+                        <option value="">Elegí el titular</option>
+                    </select>
+                    <span asp-validation-for="InquilinoTitularId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CoinquilinosIds" class="form-label"></label>
+                    <select asp-for="CoinquilinosIds" asp-items="Model.OpcionesInquilinos" class="form-select" multiple size="4" aria-describedby="ayuda-coinquilinos"></select>
+                    <div id="ayuda-coinquilinos" class="form-text">Opcional. Para elegir más de uno, mantené apretada la tecla Ctrl.</div>
+                    <span asp-validation-for="CoinquilinosIds" class="text-danger"></span>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5">Garantía</legend>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="GaranteId" class="form-label"></label>
+                    <select asp-for="GaranteId" asp-items="Model.OpcionesGarantes" class="form-select" aria-describedby="ayuda-garante">
+                        <option value="">Sin garante</option>
+                    </select>
+                    <div id="ayuda-garante" class="form-text">Opcional: el sistema admite contratos sin garante.</div>
+                    <span asp-validation-for="GaranteId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TipoGarantia" class="form-label"></label>
+                    <select asp-for="TipoGarantia" asp-items="Html.GetEnumSelectList<TipoGarantia>()" class="form-select">
+                        <option value="">Elegí el tipo (si hay garante)</option>
+                    </select>
+                    <span asp-validation-for="TipoGarantia" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="DetalleGarantia" class="form-label"></label>
+                    <input asp-for="DetalleGarantia" class="form-control" aria-describedby="ayuda-detalle-garantia" />
+                    <div id="ayuda-detalle-garantia" class="form-text">Por ejemplo, la matrícula del inmueble, el número de póliza o el empleador.</div>
+                    <span asp-validation-for="DetalleGarantia" class="text-danger"></span>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5">Vigencia y monto</legend>
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="FechaInicio" class="form-label"></label>
+                    <input asp-for="FechaInicio" class="form-control" type="date" />
+                    <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="FechaFin" class="form-label"></label>
+                    <input asp-for="FechaFin" class="form-control" type="date" />
+                    <span asp-validation-for="FechaFin" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="Moneda" class="form-label"></label>
+                    <select asp-for="Moneda" asp-items="Html.GetEnumSelectList<Moneda>()" class="form-select"></select>
+                    <span asp-validation-for="Moneda" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="MontoInicial" class="form-label"></label>
+                    <input asp-for="MontoInicial" class="form-control" type="text" inputmode="decimal" aria-describedby="ayuda-monto" />
+                    <div id="ayuda-monto" class="form-text">Usá coma para los decimales (por ejemplo 650000,50).</div>
+                    <span asp-validation-for="MontoInicial" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="DiaVencimiento" class="form-label"></label>
+                    <input asp-for="DiaVencimiento" class="form-control" type="number" min="1" max="28" />
+                    <span asp-validation-for="DiaVencimiento" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="DepositoGarantia" class="form-label"></label>
+                    <input asp-for="DepositoGarantia" class="form-control" type="text" inputmode="decimal" />
+                    <span asp-validation-for="DepositoGarantia" class="text-danger"></span>
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset class="mb-4">
+            <legend class="h5">Ajuste del precio</legend>
+            <div class="row g-3">
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="TipoAjuste" class="form-label"></label>
+                    <select asp-for="TipoAjuste" asp-items="Html.GetEnumSelectList<TipoAjuste>()" class="form-select"></select>
+                    <span asp-validation-for="TipoAjuste" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="IndiceId" class="form-label"></label>
+                    <select asp-for="IndiceId" asp-items="Model.OpcionesIndices" class="form-select" aria-describedby="ayuda-indice">
+                        <option value="">Elegí el índice</option>
+                    </select>
+                    <div id="ayuda-indice" class="form-text">Solo si el ajuste es por índice.</div>
+                    <span asp-validation-for="IndiceId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="PorcentajeFijo" class="form-label"></label>
+                    <input asp-for="PorcentajeFijo" class="form-control" type="text" inputmode="decimal" aria-describedby="ayuda-porcentaje" />
+                    <div id="ayuda-porcentaje" class="form-text">Solo si el ajuste es por porcentaje fijo.</div>
+                    <span asp-validation-for="PorcentajeFijo" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <label asp-for="PeriodicidadMeses" class="form-label"></label>
+                    <input asp-for="PeriodicidadMeses" class="form-control" type="number" min="1" max="24" />
+                    <span asp-validation-for="PeriodicidadMeses" class="text-danger"></span>
+                </div>
+                <div class="col-12">
+                    <label asp-for="Observaciones" class="form-label"></label>
+                    <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Observaciones" class="text-danger"></span>
+                </div>
+            </div>
+        </fieldset>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Guardar contrato</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

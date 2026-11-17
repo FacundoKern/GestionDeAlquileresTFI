@@ -56,6 +56,7 @@ public class PermisosTests
         { "/Inquilinos", [Admin, Oper, Cons] },
         { "/Garantes", [Admin, Oper, Cons] },
         { "/Reportes", [Admin, Oper, Cons] },
+        { "/Asistente", [Admin, Oper, Cons] },
 
         // Gestión: Administrador y Operador.
         { "/Propietarios/Crear", [Admin, Oper] },
@@ -67,6 +68,7 @@ public class PermisosTests
         // Administración: solo Administrador.
         { "/Administracion", [Admin] },
         { "/Administracion/Contratos", [Admin] },
+        { "/Administracion/Contratos/Crear", [Admin] },
         { "/Administracion/Ajustes", [Admin] },
         { "/Administracion/Mora", [Admin] },
         { "/Administracion/Indices", [Admin] },

@@ -1,0 +1,39 @@
+@model GestionAlquileres.Web.ViewModels.Contratos.RescindirContratoViewModel
+@{
+    ViewData["Title"] = "Rescindir contrato";
+    ViewData.EstablecerMigas(
+        new Miga("Contratos", Url.Action("Index")!),
+        new Miga(Model.Propiedad, Url.Action("Detalle", new { id = Model.Id })!));
+}
+
+<partial name="_ResumenErrores" />
+
+<form asp-action="Rescindir" asp-route-id="@Model.Id" method="post" novalidate class="card">
+    <div class="card-body">
+        <p>
+            Contrato de <strong>@Model.Propiedad</strong>, vigente del @Formato.Fecha(Model.FechaInicio) al @Formato.Fecha(Model.FechaFin).
+            Al rescindirlo deja de estar vigente y la propiedad queda disponible. No se puede deshacer.
+        </p>
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label asp-for="FechaRescision" class="form-label"></label>
+                <input asp-for="FechaRescision" class="form-control" type="date" />
+                <span asp-validation-for="FechaRescision" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Motivo" class="form-label"></label>
+                <textarea asp-for="Motivo" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Motivo" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle" aria-hidden="true"></i> Rescindir el contrato</button>
+            <a asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
