@@ -285,9 +285,12 @@ Así los dos sistemas pueden estar abiertos a la vez sin pisarse.
     agregados y anónimos.
   - Ponerle un límite de pedidos por usuario.
   - Mostrar un mensaje claro si la API no responde.
-- **Despliegue:** el hosting tiene que ofrecer SQL Server, como SmarterASP.NET o Azure SQL; Render no lo ofrece.
-  La carpeta de fotos tiene que persistir entre despliegues. En producción, las migraciones no se aplican solas
-  (ver el README).
+- **Despliegue** (MonsterASP, decidido el 2026-11-17; variables en la sección "Despliegue" del README):
+  - en la demo, las migraciones se aplican solas, se cargan los datos ficticios y los usuarios de prueba no
+    tienen que cambiar la contraseña (`Seed:ExigirCambioDeClave`);
+  - las fotos y las claves de Data Protection (`DataProtection:Carpeta`) van en la carpeta `private` del sitio,
+    que los despliegues no tocan;
+  - HTTPS lo activa el soporte de MonsterASP con un ticket.
 - **Credenciales de prueba:** se entregan con el trabajo, no en el repositorio público. Los usuarios de
   demostración trabajan sobre datos ficticios.
 - **Rol "Cliente":** es Consulta (decidido el 2026-11-07). No se crea un rol nuevo.

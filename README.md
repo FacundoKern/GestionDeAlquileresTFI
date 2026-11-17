@@ -124,12 +124,26 @@ tests/GestionAlquileres.Tests/
 
 ## Despliegue
 
-**Pendiente de definir:** el hosting tiene que ofrecer SQL Server (por ejemplo, SmarterASP.NET o Azure SQL).
-Las **fotos de las propiedades** se guardan en una carpeta del servidor (`Fotos:Carpeta`, por defecto
-`App_Data/fotos`), no en la base. **Tienen que entrar en los backups**, junto con la base de datos.
-En producción, la cadena de conexión y las contraseñas iniciales se configuran con variables de entorno
-(`ConnectionStrings__GestionAlquileres`, `Seed__Usuarios__Administrador__Clave`, …), y los usuarios
-iniciales deben cambiar la contraseña en su primer ingreso.
+La demo del TFI está en **MonsterASP.NET** (plan gratis: Windows/IIS y SQL Server). La configuración va
+en **variables de entorno** del panel (*Scripting → Environment variables*), nunca en archivos del repositorio:
+
+| Variable | Valor |
+|---|---|
+| `ConnectionStrings__GestionAlquileres` | La cadena de la base MSSQL del panel, con `TrustServerCertificate=True` |
+| `BaseDeDatos__AplicarMigracionesAlIniciar` | `true`: cada despliegue actualiza la base solo |
+| `Seed__DatosDePrueba` | `true`: carga los datos ficticios de demostración |
+| `Seed__ExigirCambioDeClave` | `false`: las credenciales de prueba siguen sirviendo después del primer ingreso |
+| `Seed__Usuarios__<Rol>__Email` y `__NombreCompleto` | Uno por rol (`Administrador`, `Operador`, `Consulta`) |
+| `Seed__Usuarios__<Rol>__Clave` | La contraseña inicial de cada rol |
+| `Fotos__Carpeta` | `../private/fotos`: fuera de `wwwroot` y fuera del alcance de los despliegues |
+| `DataProtection__Carpeta` | `../private/keys`: las claves de las cookies sobreviven a los reinicios |
+
+- **HTTPS es obligatorio** (las cookies son `__Host-` y `Secure`). En el plan gratis lo activa el soporte de
+  MonsterASP con un ticket, después de publicar por primera vez.
+- `web.config` sube el límite de pedido de IIS a 120 MB para la subida de fotos.
+- Las **fotos** se guardan en disco, no en la base: **tienen que entrar en los backups**, junto con la base.
+- Fuera del TFI (un sistema real), lo correcto es `Seed__DatosDePrueba=false`, que los usuarios iniciales
+  cambien la contraseña en su primer ingreso y aplicar las migraciones con un script revisado.
 
 ## Licencias de terceros
 

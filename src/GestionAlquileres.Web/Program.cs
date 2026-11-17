@@ -3,6 +3,7 @@ using System.Text.Unicode;
 using GestionAlquileres.Web.Data.Seed;
 using GestionAlquileres.Web.Infrastructure.Configuracion;
 using GestionAlquileres.Web.Security;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.WebEncoders;
 
@@ -25,6 +26,16 @@ builder.Services.Configure<WebEncoderOptions>(opciones =>
 builder.Services.AgregarLocalizacionArgentina();
 builder.Services.AgregarPersistencia(builder.Configuration);
 builder.Services.AgregarSeguridad();
+
+// En el hosting compartido (IIS sin perfil de usuario) las claves que cifran las cookies quedan solo en memoria:
+// cada reinicio cerraría las sesiones y rompería los formularios abiertos. Se guardan en una carpeta privada.
+var carpetaClaves = builder.Configuration["DataProtection:Carpeta"];
+if (!string.IsNullOrWhiteSpace(carpetaClaves))
+{
+    builder.Services.AddDataProtection()
+        .SetApplicationName("GestionAlquileresTFI")
+        .PersistKeysToFileSystem(new DirectoryInfo(Path.GetFullPath(carpetaClaves, builder.Environment.ContentRootPath)));
+}
 builder.Services.AgregarServiciosDeNegocio();
 builder.Services.Configure<EmpresaOptions>(builder.Configuration.GetSection(EmpresaOptions.Seccion));
 builder.Services.Configure<SemaforoOptions>(builder.Configuration.GetSection(SemaforoOptions.Seccion));

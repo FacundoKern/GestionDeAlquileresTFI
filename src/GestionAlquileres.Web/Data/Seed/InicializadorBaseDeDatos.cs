@@ -11,7 +11,9 @@ namespace GestionAlquileres.Web.Data.Seed;
 /// - Migraciones automáticas solo si BaseDeDatos:AplicarMigracionesAlIniciar = true (desarrollo).
 /// - Datos base en todos los entornos (idempotente): roles, índices ICL/IPC/Casa Propia, numerador de recibos.
 /// - Usuarios iniciales definidos en Seed:Usuarios (las contraseñas SOLO desde User Secrets / variables de entorno).
-/// - Datos de prueba solo en Development y si Seed:DatosDePrueba = true.
+///   Fuera de desarrollo deben cambiar la contraseña al ingresar, salvo Seed:ExigirCambioDeClave = false.
+/// - Datos de prueba (ficticios) si Seed:DatosDePrueba = true. Está en false en appsettings.json; en el TFI se
+///   activa también en producción para que la demo no esté vacía.
 /// </summary>
 public static class InicializadorBaseDeDatos
 {
@@ -40,9 +42,12 @@ public static class InicializadorBaseDeDatos
                 servicios.GetRequiredService<UserManager<Usuario>>(),
                 servicios.GetRequiredService<TimeProvider>(),
                 logger)
-            .CrearAsync(configuracion.GetSection("Seed:Usuarios"), exigirCambioDeClave: !app.Environment.IsDevelopment());
+            .CrearAsync(
+                configuracion.GetSection("Seed:Usuarios"),
+                // En la demo pública del TFI se apaga: si no, el primero que entra deja inservibles las credenciales entregadas.
+                exigirCambioDeClave: configuracion.GetValue("Seed:ExigirCambioDeClave", !app.Environment.IsDevelopment()));
 
-        if (app.Environment.IsDevelopment() && configuracion.GetValue<bool>("Seed:DatosDePrueba"))
+        if (configuracion.GetValue<bool>("Seed:DatosDePrueba"))
         {
             var datosDePrueba = new DatosDePrueba(db, servicios.GetRequiredService<TimeProvider>());
             if (await datosDePrueba.CargarAsync(ct))
